@@ -189,7 +189,13 @@ const Modal = ({
   onAddObservation, 
   onDeleteObservation,
   onUpdateBedPosition,
-  currentBedPosition
+  currentBedPosition,
+  onUpdateHeadboard,
+  currentHeadboard,
+  onUpdateTV,
+  currentTV,
+  onUpdateSafe,
+  currentSafe
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -199,6 +205,12 @@ const Modal = ({
   onDeleteObservation: (id: string) => void; 
   onUpdateBedPosition: (pos: BedPosition) => void;
   currentBedPosition?: BedPosition;
+  onUpdateHeadboard: (val: string) => void;
+  currentHeadboard?: string;
+  onUpdateTV: (val: string) => void;
+  currentTV?: string;
+  onUpdateSafe: (val: string) => void;
+  currentSafe?: string;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -289,15 +301,48 @@ const Modal = ({
               <div className="bg-blue-50 rounded-lg p-3 grid grid-cols-3 gap-2 text-xs border border-blue-100">
                 <div className="flex flex-col">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cabezal</span>
-                  <span className="font-semibold text-slate-700">{room.headboard || '-'}</span>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.headboard || '-'}</span>
+                    <select 
+                      value={currentHeadboard || room.headboard || ''} 
+                      onChange={(e) => onUpdateHeadboard(e.target.value)}
+                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs appearance-none cursor-pointer"
+                    >
+                      <option value="Baldosa">Baldosa</option>
+                      <option value="Tela">Tela</option>
+                      <option value="Papel pintado">Papel pintado</option>
+                      {/* If original is not one of the 3, we still show it as the initial value */}
+                      {!['Baldosa', 'Tela', 'Papel pintado'].includes(room.headboard || '') && (
+                        <option value={room.headboard}>{room.headboard}</option>
+                      )}
+                    </select>
+                  </div>
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">TV</span>
-                  <span className="font-semibold text-slate-700">{room.tv || '-'}</span>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.tv || '-'}</span>
+                    <input 
+                      type="text"
+                      value={currentTV !== undefined ? currentTV : (room.tv || '')} 
+                      onChange={(e) => onUpdateTV(e.target.value)}
+                      placeholder="Marca/Modelo..."
+                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs w-full"
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
-                  <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cofre</span>
-                  <span className="font-semibold text-slate-700">{room.safe || '-'}</span>
+                  <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Caja Fuerte</span>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.safe || '-'}</span>
+                    <input 
+                      type="text"
+                      value={currentSafe !== undefined ? currentSafe : (room.safe || '')} 
+                      onChange={(e) => onUpdateSafe(e.target.value)}
+                      placeholder="Marca/Modelo..."
+                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs w-full"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -423,7 +468,7 @@ const Modal = ({
 export default function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [observations, setObservations] = useState<Record<string, Observation[]>>({});
-  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition }>>({});
+  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string; tv?: string; safe?: string }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -507,6 +552,30 @@ export default function App() {
     setRoomConfigs(prev => ({
       ...prev,
       [selectedRoom.id]: { ...prev[selectedRoom.id], bedPosition: pos }
+    }));
+  };
+
+  const handleUpdateHeadboard = (headboard: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], headboard }
+    }));
+  };
+
+  const handleUpdateTV = (tv: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], tv }
+    }));
+  };
+
+  const handleUpdateSafe = (safe: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], safe }
     }));
   };
 
@@ -674,6 +743,12 @@ export default function App() {
         onDeleteObservation={handleDeleteObservation}
         onUpdateBedPosition={handleUpdateBedPosition}
         currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
+        onUpdateHeadboard={handleUpdateHeadboard}
+        currentHeadboard={selectedRoom ? getRoomConfig(selectedRoom.id).headboard : undefined}
+        onUpdateTV={handleUpdateTV}
+        currentTV={selectedRoom ? getRoomConfig(selectedRoom.id).tv : undefined}
+        onUpdateSafe={handleUpdateSafe}
+        currentSafe={selectedRoom ? getRoomConfig(selectedRoom.id).safe : undefined}
       />
     </div>
   );
