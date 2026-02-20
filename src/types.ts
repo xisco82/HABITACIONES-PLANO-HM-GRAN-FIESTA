@@ -1,0 +1,19 @@
+export type RoomType = 'PVM' | 'PREMIUM' | 'STANDARD' | 'SERVICE';
+
+export interface RoomData {
+  id: string;
+  number: string;
+  type: RoomType;
+  isAccessible?: boolean;
+  label?: string; // For things like "PASILLO", "ASCENSOR"
+  headboard?: string;
+  tv?: string;
+  safe?: string;
+}
+
+export interface Observation {
+  id: string;
+  roomId: string;
+  text: string;
+  timestamp: number;
+}
