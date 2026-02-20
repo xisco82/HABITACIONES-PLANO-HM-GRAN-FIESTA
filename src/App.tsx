@@ -182,7 +182,11 @@ const Modal = ({
   onUpdateBedPosition,
   currentBedPosition,
   onUpdateHeadboard,
-  currentHeadboard
+  currentHeadboard,
+  onUpdateTv,
+  currentTv,
+  onUpdateSafe,
+  currentSafe
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -194,6 +198,10 @@ const Modal = ({
   currentBedPosition?: BedPosition;
   onUpdateHeadboard: (val: string) => void;
   currentHeadboard?: string;
+  onUpdateTv: (val: string) => void;
+  currentTv?: string;
+  onUpdateSafe: (val: string) => void;
+  currentSafe?: string;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -297,11 +305,23 @@ const Modal = ({
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">TV</span>
-                  <span className="font-semibold text-slate-700">{room.tv || '-'}</span>
+                  <input
+                    type="text"
+                    value={currentTv ?? room.tv ?? ''}
+                    onChange={(e) => onUpdateTv(e.target.value)}
+                    className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 w-full"
+                    placeholder="-"
+                  />
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cofre</span>
-                  <span className="font-semibold text-slate-700">{room.safe || '-'}</span>
+                  <input
+                    type="text"
+                    value={currentSafe ?? room.safe ?? ''}
+                    onChange={(e) => onUpdateSafe(e.target.value)}
+                    className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 w-full"
+                    placeholder="-"
+                  />
                 </div>
               </div>
 
@@ -427,7 +447,7 @@ const Modal = ({
 export default function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [observations, setObservations] = useState<Record<string, Observation[]>>({});
-  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string }>>({});
+  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string; tv?: string; safe?: string }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
@@ -500,6 +520,22 @@ export default function App() {
     setRoomConfigs(prev => ({
       ...prev,
       [selectedRoom.id]: { ...prev[selectedRoom.id], headboard }
+    }));
+  };
+
+  const handleUpdateTv = (tv: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], tv }
+    }));
+  };
+
+  const handleUpdateSafe = (safe: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], safe }
     }));
   };
 
@@ -645,6 +681,10 @@ export default function App() {
         currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
         onUpdateHeadboard={handleUpdateHeadboard}
         currentHeadboard={selectedRoom ? getRoomConfig(selectedRoom.id).headboard : undefined}
+        onUpdateTv={handleUpdateTv}
+        currentTv={selectedRoom ? getRoomConfig(selectedRoom.id).tv : undefined}
+        onUpdateSafe={handleUpdateSafe}
+        currentSafe={selectedRoom ? getRoomConfig(selectedRoom.id).safe : undefined}
       />
     </div>
   );
