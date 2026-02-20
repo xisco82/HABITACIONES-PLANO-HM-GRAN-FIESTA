@@ -43,7 +43,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   if (isService) {
     const isElevator = room.label === 'ASCENSOR';
     return (
-      <div className={`w-full ${isElevator ? 'h-8 md:h-12' : 'h-16 md:h-24'} flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-[10px] md:text-xs font-bold tracking-wider my-0.5 print:border-slate-800`}>
+      <div className={`w-full ${isElevator ? 'h-8 md:h-12' : 'h-20 md:h-24'} flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-[10px] md:text-xs font-bold tracking-wider my-0.5 print:border-slate-800`}>
         {room.label}
       </div>
     );
@@ -654,6 +654,12 @@ export default function App() {
             <p>526/626/726</p>
             <p>826/926</p>
           </div>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
+          <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">
+            © {new Date().getFullYear()} Todos los derechos reservados · Xisco G. H.
+          </p>
         </div>
       </motion.div>
 
