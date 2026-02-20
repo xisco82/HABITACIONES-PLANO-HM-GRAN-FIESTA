@@ -49,8 +49,8 @@ const RoomCard: React.FC<RoomCardProps> = ({
   // Layout classes based on orientation (container shape)
   const containerClasses = {
     top: "h-32 w-24",
-    left: "h-20 w-48",
-    right: "h-20 w-48"
+    left: "h-20 w-32",
+    right: "h-20 w-32"
   };
 
   // Determine effective bed position. 
@@ -79,13 +79,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
     right: "absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-blue-600"
   };
 
-  return (
+  const cardContent = (
     <motion.button
       whileHover={{ scale: 1.02 }}
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative bg-white border border-slate-800 transition-colors my-0.5 group overflow-hidden
+        relative bg-white border border-slate-800 transition-colors my-0.5 group overflow-hidden shrink-0
         ${containerClasses[orientation]}
         ${hasObservations ? 'bg-amber-50' : ''}
       `}
@@ -101,8 +101,8 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {room.number}
         </span>
         
-        {/* Observations Text */}
-        {hasObservations && (
+        {/* Observations Text - Only for TOP orientation inside */}
+        {hasObservations && orientation === 'top' && (
           <div className="w-full mt-1 text-[9px] leading-tight text-amber-900 font-medium text-center overflow-hidden px-1 bg-white/80 rounded">
             {observations.map((obs) => (
               <span key={obs.id} className="block truncate">
@@ -123,6 +123,28 @@ const RoomCard: React.FC<RoomCardProps> = ({
       {/* Door Indicator */}
       <div className={`${doorClasses[orientation]}`} />
     </motion.button>
+  );
+
+  if (orientation === 'top') {
+    return cardContent;
+  }
+
+  return (
+    <div className={`flex items-center gap-2 ${orientation === 'left' ? 'justify-end' : 'justify-start'} w-full`}>
+      {orientation === 'left' && hasObservations && (
+        <div className="text-[10px] text-slate-600 font-medium text-right flex-1 min-w-[100px] max-w-[200px]">
+           {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+        </div>
+      )}
+
+      {cardContent}
+
+      {orientation === 'right' && hasObservations && (
+        <div className="text-[10px] text-slate-600 font-medium text-left flex-1 min-w-[100px] max-w-[200px]">
+           {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+        </div>
+      )}
+    </div>
   );
 };
 
