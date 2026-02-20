@@ -24,7 +24,7 @@ interface RoomCardProps {
   room: RoomData;
   onClick: () => void;
   observations: Observation[];
-  orientation: 'top' | 'left' | 'right';
+  orientation: 'top' | 'bottom' | 'left' | 'right';
   bedPosition?: BedPosition;
 }
 
@@ -49,6 +49,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   // Layout classes based on orientation (container shape)
   const containerClasses = {
     top: "h-32 w-24",
+    bottom: "h-32 w-24",
     left: "h-20 w-48",
     right: "h-20 w-48"
   };
@@ -75,6 +76,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
   const doorClasses = {
     top: "absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-8 h-2 bg-blue-600",
+    bottom: "absolute top-[-4px] left-1/2 -translate-x-1/2 w-8 h-2 bg-blue-600",
     left: "absolute right-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-blue-600",
     right: "absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-blue-600"
   };
@@ -387,6 +389,19 @@ export default function App() {
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
 
+  // Responsive Layout Logic
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024); // lg breakpoint
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Load from localStorage on mount
   useEffect(() => {
     const savedObs = localStorage.getItem('hotel-observations');
@@ -507,54 +522,113 @@ export default function App() {
         {/* Main Grid Layout */}
         <div className="flex flex-col items-center gap-0 py-12">
           
-          {/* Top Rooms */}
-          <div className="flex gap-1 mb-8">
-            {topRooms.map(room => (
-              <div key={room.id}>
-                <RoomCard 
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="top"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
+          {isMobile ? (
+            // --- MOBILE / VERTICAL LAYOUT (Original) ---
+            <>
+              {/* Top Rooms */}
+              <div className="flex gap-1 mb-8">
+                {topRooms.map(room => (
+                  <div key={room.id}>
+                    <RoomCard 
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="top"
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Main Corridor Columns */}
-          <div className="flex gap-24 relative">
-            {/* Left Column */}
-            <div className="flex flex-col gap-0">
-              {leftRooms.map(room => (
-                <RoomCard 
-                  key={room.id}
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="left"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
-              ))}
+              {/* Main Corridor Columns */}
+              <div className="flex gap-24 relative">
+                {/* Left Column */}
+                <div className="flex flex-col gap-0">
+                  {leftRooms.map(room => (
+                    <RoomCard 
+                      key={room.id}
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="left"
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  ))}
+                </div>
+
+                {/* Central Corridor Space */}
+                <div className="w-0" />
+
+                {/* Right Column */}
+                <div className="flex flex-col gap-0">
+                  {rightRooms.map(room => (
+                    <RoomCard 
+                      key={room.id}
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="right"
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            // --- DESKTOP / HORIZONTAL LAYOUT (Rotated -90deg) ---
+            <div className="flex flex-row items-center gap-0">
+              {/* Left Wing (was Top Rooms) - Now Vertical Bridge */}
+              <div className="flex flex-col gap-1 mr-8 justify-center">
+                 {/* Reverse order to match rotation logic if needed, or keep as is */}
+                 {/* Top rooms 107, 106 usually sit at the 'top' of the U. 
+                     In horizontal U (opening right), they are the left bridge.
+                     107 is usually left of 106. So 107 is Top, 106 is Bottom?
+                 */}
+                {topRooms.map(room => (
+                  <div key={room.id}>
+                    <RoomCard 
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="right" // Door faces right (into corridor)
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Main Corridor Rows */}
+              <div className="flex flex-col gap-24 relative">
+                {/* Top Row (was Left Column 108...125) */}
+                <div className="flex flex-row gap-0">
+                  {leftRooms.map(room => (
+                    <RoomCard 
+                      key={room.id}
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="bottom" // Door faces bottom (into corridor)
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  ))}
+                </div>
+
+                {/* Bottom Row (was Right Column 105...126) */}
+                <div className="flex flex-row gap-0">
+                  {rightRooms.map(room => (
+                    <RoomCard 
+                      key={room.id}
+                      room={room} 
+                      onClick={() => setSelectedRoom(room)}
+                      observations={getRoomObs(room.id)}
+                      orientation="top" // Door faces top (into corridor)
+                      bedPosition={getRoomConfig(room.id).bedPosition}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-
-            {/* Central Corridor Space */}
-            <div className="w-0" />
-
-            {/* Right Column */}
-            <div className="flex flex-col gap-0">
-              {rightRooms.map(room => (
-                <RoomCard 
-                  key={room.id}
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="right"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
-              ))}
-            </div>
-          </div>
+          )}
 
         </div>
 
