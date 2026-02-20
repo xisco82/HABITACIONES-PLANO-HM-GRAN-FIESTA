@@ -22,7 +22,7 @@ const createRoom = (floor: number, suffix: string, type: RoomType): RoomData => 
     number,
     type,
     isAccessible: isAccessible(floor, suffix),
-    hasTerrace: floor === 1 && numSuffix >= 16 && numSuffix <= 25,
+    hasTerrace: floor === 1 && ((numSuffix >= 16 && numSuffix <= 25) || (numSuffix >= 4 && numSuffix <= 9)),
     headboard: details.headboard,
     tv: details.tv,
     safe: details.safe

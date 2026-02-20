@@ -129,7 +129,16 @@ const RoomCard: React.FC<RoomCardProps> = ({
   );
 
   if (orientation === 'top') {
-    return cardContent;
+    return (
+      <div className="flex flex-col items-center gap-1">
+        {room.hasTerrace && (
+          <div className="w-16 md:w-24 h-4 md:h-6 bg-blue-50 border-x border-t border-slate-800 rounded-t-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+            <span className="text-[6px] md:text-[7px] font-bold text-blue-700 tracking-tighter">TERRAZA</span>
+          </div>
+        )}
+        {cardContent}
+      </div>
+    );
   }
 
   return (
@@ -147,6 +156,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
       )}
 
       {cardContent}
+
+      {orientation === 'right' && room.hasTerrace && (
+        <div className="h-16 md:h-20 w-4 md:w-6 bg-blue-50 border-y border-r border-slate-800 rounded-r-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+          <span className="text-[6px] md:text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] tracking-tighter">TERRAZA</span>
+        </div>
+      )}
 
       {orientation === 'right' && hasObservations && (
         <div className="text-[10px] text-slate-600 font-medium text-left flex-1 min-w-[100px] max-w-[200px]">
