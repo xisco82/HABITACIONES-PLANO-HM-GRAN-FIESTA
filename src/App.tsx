@@ -158,7 +158,9 @@ const Modal = ({
   onAddObservation, 
   onDeleteObservation,
   onUpdateBedPosition,
-  currentBedPosition
+  currentBedPosition,
+  onUpdateHeadboard,
+  currentHeadboard
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -168,6 +170,8 @@ const Modal = ({
   onDeleteObservation: (id: string) => void; 
   onUpdateBedPosition: (pos: BedPosition) => void;
   currentBedPosition?: BedPosition;
+  onUpdateHeadboard: (val: string) => void;
+  currentHeadboard?: string;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -258,7 +262,15 @@ const Modal = ({
               <div className="bg-blue-50 rounded-lg p-3 grid grid-cols-3 gap-2 text-xs border border-blue-100">
                 <div className="flex flex-col">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cabezal</span>
-                  <span className="font-semibold text-slate-700">{room.headboard || '-'}</span>
+                  <select 
+                    value={currentHeadboard || room.headboard || ''} 
+                    onChange={(e) => onUpdateHeadboard(e.target.value)}
+                    className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5"
+                  >
+                    <option value="">-</option>
+                    <option value="BALDOSA">BALDOSA</option>
+                    <option value="TELA">TELA</option>
+                  </select>
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">TV</span>
@@ -392,7 +404,7 @@ const Modal = ({
 export default function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [observations, setObservations] = useState<Record<string, Observation[]>>({});
-  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition: BedPosition }>>({});
+  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
@@ -457,6 +469,14 @@ export default function App() {
     setRoomConfigs(prev => ({
       ...prev,
       [selectedRoom.id]: { ...prev[selectedRoom.id], bedPosition: pos }
+    }));
+  };
+
+  const handleUpdateHeadboard = (headboard: string) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], headboard }
     }));
   };
 
@@ -600,6 +620,8 @@ export default function App() {
         onDeleteObservation={handleDeleteObservation}
         onUpdateBedPosition={handleUpdateBedPosition}
         currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
+        onUpdateHeadboard={handleUpdateHeadboard}
+        currentHeadboard={selectedRoom ? getRoomConfig(selectedRoom.id).headboard : undefined}
       />
     </div>
   );
