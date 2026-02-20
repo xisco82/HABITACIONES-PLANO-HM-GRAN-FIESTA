@@ -485,8 +485,8 @@ export default function App() {
   const getRoomConfig = (id: string) => roomConfigs[id] || {};
 
   return (
-    <div className="min-h-screen bg-slate-100 py-8 px-4 flex flex-col items-center">
-      <header className="mb-6 text-center max-w-2xl">
+    <div className="min-h-screen bg-slate-100 md:py-8 md:px-4 flex flex-col items-center">
+      <header className="mb-6 text-center max-w-2xl p-4 md:p-0">
         <div className="inline-flex items-center justify-center p-3 bg-white rounded-xl shadow-sm mb-4">
           <Hotel className="w-6 h-6 text-blue-600 mr-2" />
           <h1 className="text-xl font-bold text-slate-800">HM Gran Fiesta</h1>
@@ -504,7 +504,7 @@ export default function App() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 max-w-4xl w-full relative overflow-hidden"
+        className="bg-white md:p-8 p-4 md:rounded-3xl md:shadow-xl md:border border-slate-200 max-w-4xl w-full relative overflow-x-auto overflow-y-hidden flex-1 md:flex-none shadow-none rounded-none border-t border-b"
       >
         {/* ... decorative elements ... */}
         
