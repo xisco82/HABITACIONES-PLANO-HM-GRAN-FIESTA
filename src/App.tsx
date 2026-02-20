@@ -550,82 +550,84 @@ export default function App() {
         {/* Decorative Background Elements */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-cyan-400" />
         
-        {/* Compass / Orientation Labels */}
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
-          <span>Sea / South</span>
-          <Waves className="w-4 h-4 mt-1 text-blue-300" />
-        </div>
+        {/* Main Layout Area - Relative to contain orientation labels */}
+        <div className="relative pt-12 pb-16">
+          {/* Compass / Orientation Labels */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
+            <span>Sea / South</span>
+            <Waves className="w-4 h-4 mt-1 text-blue-300" />
+          </div>
 
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
-          <Sun className="w-4 h-4 mb-1 text-amber-300" />
-          <span>North / Street</span>
-        </div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
+            <Sun className="w-4 h-4 mb-1 text-amber-300" />
+            <span>North / Street</span>
+          </div>
 
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-          Arenal
-        </div>
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Arenal
+          </div>
 
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-          Palma
-        </div>
+          <div className="absolute right-0 top-1/2 -translate-y-1/2 rotate-90 text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+            Palma
+          </div>
 
-        {/* Floor Indicator Watermark */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[200px] font-bold text-slate-50 opacity-[0.03] pointer-events-none select-none">
-          {currentFloor}
-        </div>
+          {/* Floor Indicator Watermark */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[120px] md:text-[200px] font-bold text-slate-50 opacity-[0.03] pointer-events-none select-none">
+            {currentFloor}
+          </div>
 
-        {/* Main Grid Layout */}
-        <div className="flex flex-col items-center gap-0 py-12">
-          
-          {/* Top Rooms */}
-          <div className="flex gap-1 mb-8">
-            {topRooms.map(room => (
-              <div key={room.id}>
-                <RoomCard 
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="top"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
+          {/* Main Grid Layout */}
+          <div className="flex flex-col items-center gap-0">
+            
+            {/* Top Rooms */}
+            <div className="flex gap-1 mb-8">
+              {topRooms.map(room => (
+                <div key={room.id}>
+                  <RoomCard 
+                    room={room} 
+                    onClick={() => setSelectedRoom(room)}
+                    observations={getRoomObs(room.id)}
+                    orientation="top"
+                    bedPosition={getRoomConfig(room.id).bedPosition}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Main Corridor Columns */}
+            <div className="flex gap-8 md:gap-24 relative">
+              {/* Left Column */}
+              <div className="flex flex-col gap-0">
+                {leftRooms.map(room => (
+                  <RoomCard 
+                    key={room.id}
+                    room={room} 
+                    onClick={() => setSelectedRoom(room)}
+                    observations={getRoomObs(room.id)}
+                    orientation="left"
+                    bedPosition={getRoomConfig(room.id).bedPosition}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Main Corridor Columns */}
-          <div className="flex gap-8 md:gap-24 relative">
-            {/* Left Column */}
-            <div className="flex flex-col gap-0">
-              {leftRooms.map(room => (
-                <RoomCard 
-                  key={room.id}
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="left"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
-              ))}
-            </div>
+              {/* Central Corridor Space */}
+              <div className="w-0" />
 
-            {/* Central Corridor Space */}
-            <div className="w-0" />
-
-            {/* Right Column */}
-            <div className="flex flex-col gap-0">
-              {rightRooms.map(room => (
-                <RoomCard 
-                  key={room.id}
-                  room={room} 
-                  onClick={() => setSelectedRoom(room)}
-                  observations={getRoomObs(room.id)}
-                  orientation="right"
-                  bedPosition={getRoomConfig(room.id).bedPosition}
-                />
-              ))}
+              {/* Right Column */}
+              <div className="flex flex-col gap-0">
+                {rightRooms.map(room => (
+                  <RoomCard 
+                    key={room.id}
+                    room={room} 
+                    onClick={() => setSelectedRoom(room)}
+                    observations={getRoomObs(room.id)}
+                    orientation="right"
+                    bedPosition={getRoomConfig(room.id).bedPosition}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-
         </div>
 
         {/* Legend */}
