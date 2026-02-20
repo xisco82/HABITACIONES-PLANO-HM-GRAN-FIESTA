@@ -15,12 +15,14 @@ const isAccessible = (floor: number, suffix: string) => {
 const createRoom = (floor: number, suffix: string, type: RoomType): RoomData => {
   const number = getRoomNumber(floor, suffix);
   const details = ROOM_DETAILS[number] || {};
+  const numSuffix = parseInt(suffix);
   
   return {
     id: number,
     number,
     type,
     isAccessible: isAccessible(floor, suffix),
+    hasTerrace: floor === 1 && numSuffix >= 16 && numSuffix <= 25,
     headboard: details.headboard,
     tv: details.tv,
     safe: details.safe

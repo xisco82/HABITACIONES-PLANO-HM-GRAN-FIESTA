@@ -6,6 +6,7 @@ export interface RoomData {
   number: string;
   type: RoomType;
   isAccessible?: boolean;
+  hasTerrace?: boolean;
   label?: string; // For things like "PASILLO", "ASCENSOR"
   headboard?: string;
   tv?: string;

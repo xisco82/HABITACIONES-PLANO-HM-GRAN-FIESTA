@@ -12,7 +12,9 @@ import {
   Sun,
   ArrowUp,
   ArrowDown,
-  Layers
+  Layers,
+  Maximize,
+  Minimize
 } from 'lucide-react';
 import { RoomData, Observation, BedPosition } from './types';
 import { getFloorData } from './data';
@@ -39,8 +41,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
   const hasObservations = observations.length > 0;
   
   if (isService) {
+    const isElevator = room.label === 'ASCENSOR';
     return (
-      <div className="w-full h-24 flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-xs font-bold tracking-wider my-0.5 print:border-slate-800">
+      <div className={`w-full ${isElevator ? 'h-12' : 'h-24'} flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-xs font-bold tracking-wider my-0.5 print:border-slate-800`}>
         {room.label}
       </div>
     );
@@ -130,7 +133,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
   }
 
   return (
-    <div className={`flex items-center gap-2 ${orientation === 'left' ? 'justify-end' : 'justify-start'} w-full`}>
+    <div className={`flex items-center gap-1 ${orientation === 'left' ? 'justify-end' : 'justify-start'} w-full`}>
+      {orientation === 'left' && room.hasTerrace && (
+        <div className="h-20 w-6 bg-blue-50 border-y border-l border-slate-800 rounded-l-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+          <span className="text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] rotate-180 tracking-tighter">TERRAZA</span>
+        </div>
+      )}
+
       {orientation === 'left' && hasObservations && (
         <div className="text-[10px] text-slate-600 font-medium text-right flex-1 min-w-[100px] max-w-[200px]">
            {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
@@ -180,9 +189,7 @@ const Modal = ({
   onAddObservation, 
   onDeleteObservation,
   onUpdateBedPosition,
-  currentBedPosition,
-  onUpdateHeadboard,
-  currentHeadboard
+  currentBedPosition
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -192,8 +199,6 @@ const Modal = ({
   onDeleteObservation: (id: string) => void; 
   onUpdateBedPosition: (pos: BedPosition) => void;
   currentBedPosition?: BedPosition;
-  onUpdateHeadboard: (val: string) => void;
-  currentHeadboard?: string;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -284,16 +289,7 @@ const Modal = ({
               <div className="bg-blue-50 rounded-lg p-3 grid grid-cols-3 gap-2 text-xs border border-blue-100">
                 <div className="flex flex-col">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cabezal</span>
-                  <select 
-                    value={currentHeadboard || room.headboard || ''} 
-                    onChange={(e) => onUpdateHeadboard(e.target.value)}
-                    className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5"
-                  >
-                    <option value="">-</option>
-                    <option value="BALDOSA">BALDOSA</option>
-                    <option value="TELA">TELA</option>
-                    <option value="PAPEL PINTADO VERDE">PAPEL PINTADO VERDE</option>
-                  </select>
+                  <span className="font-semibold text-slate-700">{room.headboard || '-'}</span>
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">TV</span>
@@ -427,8 +423,27 @@ const Modal = ({
 export default function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [observations, setObservations] = useState<Record<string, Observation[]>>({});
-  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string }>>({});
+  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
 
@@ -495,23 +510,25 @@ export default function App() {
     }));
   };
 
-  const handleUpdateHeadboard = (headboard: string) => {
-    if (!selectedRoom) return;
-    setRoomConfigs(prev => ({
-      ...prev,
-      [selectedRoom.id]: { ...prev[selectedRoom.id], headboard }
-    }));
-  };
-
   const getRoomObs = (id: string) => observations[id] || [];
   const getRoomConfig = (id: string) => roomConfigs[id] || {};
 
   return (
     <div className="min-h-screen bg-slate-100 md:py-8 md:px-4 flex flex-col items-center">
-      <header className="mb-6 text-center max-w-2xl p-4 md:p-0">
-        <div className="inline-flex items-center justify-center p-3 bg-white rounded-xl shadow-sm mb-4">
-          <Hotel className="w-6 h-6 text-blue-600 mr-2" />
-          <h1 className="text-xl font-bold text-slate-800">HM Gran Fiesta</h1>
+      <header className="mb-6 text-center max-w-2xl p-4 md:p-0 w-full">
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="inline-flex items-center justify-center p-3 bg-white rounded-xl shadow-sm">
+            <Hotel className="w-6 h-6 text-blue-600 mr-2" />
+            <h1 className="text-xl font-bold text-slate-800">HM Gran Fiesta</h1>
+          </div>
+          
+          <button
+            onClick={toggleFullscreen}
+            className="p-3 bg-white rounded-xl shadow-sm text-slate-600 hover:text-blue-600 transition-colors flex items-center justify-center"
+            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+          >
+            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+          </button>
         </div>
         <p className="text-slate-500 text-sm">
           Gestor de observaciones de habitaciones. Seleccione una planta y haga clic en una habitación.
@@ -622,6 +639,12 @@ export default function App() {
               <div className="w-3 h-3 bg-white border border-slate-200 rounded-sm" />
               <span>Sin observaciones</span>
             </div>
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-3 bg-blue-50 border border-slate-400 rounded-sm flex items-center justify-center">
+                <span className="text-[5px] font-bold text-blue-700">TERR.</span>
+              </div>
+              <span>Con terraza</span>
+            </div>
           </div>
           
           <div className="text-right">
@@ -643,8 +666,6 @@ export default function App() {
         onDeleteObservation={handleDeleteObservation}
         onUpdateBedPosition={handleUpdateBedPosition}
         currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
-        onUpdateHeadboard={handleUpdateHeadboard}
-        currentHeadboard={selectedRoom ? getRoomConfig(selectedRoom.id).headboard : undefined}
       />
     </div>
   );
