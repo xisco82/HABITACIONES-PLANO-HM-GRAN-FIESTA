@@ -42,7 +42,7 @@ export const getFloorData = (floor: number) => {
 
   const leftRooms = [
     createRoom(floor, '08', 'PVM'),
-    createRoom(floor, '09', 'PREMIUM'),
+    createRoom(floor, '09', floor === 1 ? 'JUNIOR SUITE' : 'PREMIUM'),
     createRoom(floor, '10', 'PREMIUM'),
     createRoom(floor, '11', 'PREMIUM'),
     createRoom(floor, '12', 'PREMIUM'),
@@ -63,7 +63,7 @@ export const getFloorData = (floor: number) => {
 
   const rightRooms = [
     createRoom(floor, '05', 'PVM'),
-    createRoom(floor, '04', 'PREMIUM'),
+    createRoom(floor, '04', floor === 1 ? 'JUNIOR SUITE' : 'PREMIUM'),
     createRoom(floor, '03', 'PREMIUM'),
     createRoom(floor, '02', 'PREMIUM'),
     createRoom(floor, '01', 'PREMIUM'),

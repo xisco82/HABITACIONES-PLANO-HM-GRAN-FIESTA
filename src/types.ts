@@ -1,4 +1,4 @@
-export type RoomType = 'PVM' | 'PREMIUM' | 'STANDARD' | 'SERVICE';
+export type RoomType = 'PVM' | 'PREMIUM' | 'STANDARD' | 'SERVICE' | 'JUNIOR SUITE';
 export type BedPosition = 'top' | 'bottom' | 'left' | 'right';
 
 export interface RoomData {
