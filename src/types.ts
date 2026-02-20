@@ -1,4 +1,5 @@
 export type RoomType = 'PVM' | 'PREMIUM' | 'STANDARD' | 'SERVICE';
+export type BedPosition = 'top' | 'bottom' | 'left' | 'right';
 
 export interface RoomData {
   id: string;
@@ -9,6 +10,7 @@ export interface RoomData {
   headboard?: string;
   tv?: string;
   safe?: string;
+  bedPosition?: BedPosition;
 }
 
 export interface Observation {

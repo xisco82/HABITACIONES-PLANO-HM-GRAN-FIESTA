@@ -14,8 +14,9 @@ import {
   ArrowDown,
   Layers
 } from 'lucide-react';
-import { RoomData, Observation } from './types';
+import { RoomData, Observation, BedPosition } from './types';
 import { getFloorData } from './data';
+import { getAllIssues } from './issues';
 
 // --- Components ---
 
@@ -24,13 +25,15 @@ interface RoomCardProps {
   onClick: () => void;
   observations: Observation[];
   orientation: 'top' | 'left' | 'right';
+  bedPosition?: BedPosition;
 }
 
 const RoomCard: React.FC<RoomCardProps> = ({ 
   room, 
   onClick, 
   observations,
-  orientation
+  orientation,
+  bedPosition
 }) => {
   const isService = room.type === 'SERVICE';
   const hasObservations = observations.length > 0;
@@ -43,17 +46,31 @@ const RoomCard: React.FC<RoomCardProps> = ({
     );
   }
 
-  // Layout classes based on orientation
+  // Layout classes based on orientation (container shape)
   const containerClasses = {
-    top: "flex-col h-32 w-24",
-    left: "flex-row h-20 w-48",
-    right: "flex-row-reverse h-20 w-48"
+    top: "h-32 w-24",
+    left: "h-20 w-48",
+    right: "h-20 w-48"
   };
 
-  const balconyClasses = {
-    top: "h-8 w-full border-b border-slate-300 bg-blue-100",
-    left: "w-12 h-full border-r border-slate-300 bg-blue-100",
-    right: "w-12 h-full border-l border-slate-300 bg-blue-100"
+  // Determine effective bed position. 
+  // If no override provided, default to the room's orientation logic.
+  const effectiveBedPos = bedPosition || orientation;
+
+  // Bed positioning styles
+  // We use absolute positioning for the bed to place it anywhere in the container
+  const bedStyles: Record<string, string> = {
+    top: "top-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col",
+    bottom: "bottom-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col-reverse",
+    left: "left-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row",
+    right: "right-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row-reverse"
+  };
+
+  const pillowStyles: Record<string, string> = {
+    top: "w-full h-3 border-b border-slate-300 bg-white/40",
+    bottom: "w-full h-3 border-t border-slate-300 bg-white/40",
+    left: "w-3 h-full border-r border-slate-300 bg-white/40",
+    right: "w-3 h-full border-l border-slate-300 bg-white/40"
   };
 
   const doorClasses = {
@@ -68,23 +85,25 @@ const RoomCard: React.FC<RoomCardProps> = ({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative flex bg-white border border-slate-800 transition-colors my-0.5 group overflow-visible
+        relative bg-white border border-slate-800 transition-colors my-0.5 group overflow-hidden
         ${containerClasses[orientation]}
         ${hasObservations ? 'bg-amber-50' : ''}
       `}
     >
-      {/* Balcony/Window Area */}
-      <div className={`${balconyClasses[orientation]} flex-shrink-0`} />
+      {/* Bed Area - Absolute Positioned */}
+      <div className={`absolute border border-slate-300 bg-blue-100 rounded-sm shadow-sm flex ${bedStyles[effectiveBedPos]}`}>
+        <div className={pillowStyles[effectiveBedPos]} />
+      </div>
 
-      {/* Main Room Area */}
-      <div className="flex-1 flex flex-col items-center justify-center p-1 relative w-full overflow-hidden">
-        <span className="text-lg font-bold text-slate-900 font-mono leading-none">
+      {/* Main Room Content - Centered but avoiding bed if possible, or overlaying z-10 */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center p-1 z-10 pointer-events-none">
+        <span className="text-lg font-bold text-slate-900 font-mono leading-none bg-white/50 px-1 rounded backdrop-blur-[1px]">
           {room.number}
         </span>
         
-        {/* Observations Text - Small and compact */}
+        {/* Observations Text */}
         {hasObservations && (
-          <div className="w-full mt-1 text-[9px] leading-tight text-amber-900 font-medium text-center overflow-hidden px-1">
+          <div className="w-full mt-1 text-[9px] leading-tight text-amber-900 font-medium text-center overflow-hidden px-1 bg-white/80 rounded">
             {observations.map((obs) => (
               <span key={obs.id} className="block truncate">
                 {obs.text}
@@ -92,14 +111,14 @@ const RoomCard: React.FC<RoomCardProps> = ({
             ))}
           </div>
         )}
-
-        {/* Accessibility Icon */}
-        {room.isAccessible && (
-          <div className="absolute bottom-1 right-1">
-            <Accessibility className="w-3 h-3 text-slate-900" />
-          </div>
-        )}
       </div>
+
+      {/* Accessibility Icon */}
+      {room.isAccessible && (
+        <div className="absolute bottom-1 right-1 z-20">
+          <Accessibility className="w-3 h-3 text-slate-900" />
+        </div>
+      )}
 
       {/* Door Indicator */}
       <div className={`${doorClasses[orientation]}`} />
@@ -131,15 +150,15 @@ const FloorSelector = ({ current, onChange }: { current: number, onChange: (f: n
   </div>
 );
 
-import { getAllIssues } from './issues';
-
 const Modal = ({ 
   isOpen, 
   onClose, 
   room, 
   observations, 
   onAddObservation, 
-  onDeleteObservation 
+  onDeleteObservation,
+  onUpdateBedPosition,
+  currentBedPosition
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -147,6 +166,8 @@ const Modal = ({
   observations: Observation[]; 
   onAddObservation: (text: string) => void; 
   onDeleteObservation: (id: string) => void; 
+  onUpdateBedPosition: (pos: BedPosition) => void;
+  currentBedPosition?: BedPosition;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -213,7 +234,7 @@ const Modal = ({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 m-auto w-full max-w-md h-fit max-h-[80vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed inset-0 m-auto w-full max-w-md h-fit max-h-[90vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             {/* Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
@@ -233,7 +254,7 @@ const Modal = ({
             </div>
 
             {/* Room Details Info Box */}
-            <div className="px-4 pt-4">
+            <div className="px-4 pt-4 space-y-3">
               <div className="bg-blue-50 rounded-lg p-3 grid grid-cols-3 gap-2 text-xs border border-blue-100">
                 <div className="flex flex-col">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cabezal</span>
@@ -246,6 +267,31 @@ const Modal = ({
                 <div className="flex flex-col border-l border-blue-200 pl-2">
                   <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cofre</span>
                   <span className="font-semibold text-slate-700">{room.safe || '-'}</span>
+                </div>
+              </div>
+
+              {/* Bed Position Controls */}
+              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                  Posición de la cama
+                </span>
+                <div className="flex justify-between gap-2">
+                  {(['top', 'bottom', 'left', 'right'] as BedPosition[]).map((pos) => (
+                    <button
+                      key={pos}
+                      onClick={() => onUpdateBedPosition(pos)}
+                      className={`
+                        flex-1 py-1.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider border transition-all
+                        ${currentBedPosition === pos 
+                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
+                          : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:bg-blue-50'}
+                      `}
+                    >
+                      {pos === 'top' ? 'Arriba' : 
+                       pos === 'bottom' ? 'Abajo' : 
+                       pos === 'left' ? 'Izq' : 'Der'}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -336,18 +382,28 @@ const Modal = ({
 export default function App() {
   const [currentFloor, setCurrentFloor] = useState(1);
   const [observations, setObservations] = useState<Record<string, Observation[]>>({});
+  const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition: BedPosition }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
 
   // Load from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('hotel-observations');
-    if (saved) {
+    const savedObs = localStorage.getItem('hotel-observations');
+    if (savedObs) {
       try {
-        setObservations(JSON.parse(saved));
+        setObservations(JSON.parse(savedObs));
       } catch (e) {
         console.error('Failed to load observations', e);
+      }
+    }
+
+    const savedConfigs = localStorage.getItem('hotel-room-configs');
+    if (savedConfigs) {
+      try {
+        setRoomConfigs(JSON.parse(savedConfigs));
+      } catch (e) {
+        console.error('Failed to load room configs', e);
       }
     }
   }, []);
@@ -356,6 +412,10 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('hotel-observations', JSON.stringify(observations));
   }, [observations]);
+
+  useEffect(() => {
+    localStorage.setItem('hotel-room-configs', JSON.stringify(roomConfigs));
+  }, [roomConfigs]);
 
   const handleAddObservation = (text: string) => {
     if (!selectedRoom) return;
@@ -382,7 +442,16 @@ export default function App() {
     }));
   };
 
+  const handleUpdateBedPosition = (pos: BedPosition) => {
+    if (!selectedRoom) return;
+    setRoomConfigs(prev => ({
+      ...prev,
+      [selectedRoom.id]: { ...prev[selectedRoom.id], bedPosition: pos }
+    }));
+  };
+
   const getRoomObs = (id: string) => observations[id] || [];
+  const getRoomConfig = (id: string) => roomConfigs[id] || {};
 
   return (
     <div className="min-h-screen bg-slate-100 py-8 px-4 flex flex-col items-center">
@@ -406,6 +475,7 @@ export default function App() {
         transition={{ duration: 0.3 }}
         className="bg-white p-8 rounded-3xl shadow-xl border border-slate-200 max-w-4xl w-full relative overflow-hidden"
       >
+        {/* ... decorative elements ... */}
         
         {/* Decorative Background Elements */}
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-cyan-400" />
@@ -446,6 +516,7 @@ export default function App() {
                   onClick={() => setSelectedRoom(room)}
                   observations={getRoomObs(room.id)}
                   orientation="top"
+                  bedPosition={getRoomConfig(room.id).bedPosition}
                 />
               </div>
             ))}
@@ -462,12 +533,12 @@ export default function App() {
                   onClick={() => setSelectedRoom(room)}
                   observations={getRoomObs(room.id)}
                   orientation="left"
+                  bedPosition={getRoomConfig(room.id).bedPosition}
                 />
               ))}
             </div>
 
             {/* Central Corridor Space */}
-            {/* Removed dashed line to match clean look of image */}
             <div className="w-0" />
 
             {/* Right Column */}
@@ -479,6 +550,7 @@ export default function App() {
                   onClick={() => setSelectedRoom(room)}
                   observations={getRoomObs(room.id)}
                   orientation="right"
+                  bedPosition={getRoomConfig(room.id).bedPosition}
                 />
               ))}
             </div>
@@ -516,6 +588,8 @@ export default function App() {
         observations={selectedRoom ? getRoomObs(selectedRoom.id) : []}
         onAddObservation={handleAddObservation}
         onDeleteObservation={handleDeleteObservation}
+        onUpdateBedPosition={handleUpdateBedPosition}
+        currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
       />
     </div>
   );
