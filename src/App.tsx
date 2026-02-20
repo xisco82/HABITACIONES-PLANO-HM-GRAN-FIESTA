@@ -43,7 +43,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
   if (isService) {
     const isElevator = room.label === 'ASCENSOR';
     return (
-      <div className={`w-full ${isElevator ? 'h-12' : 'h-24'} flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-xs font-bold tracking-wider my-0.5 print:border-slate-800`}>
+      <div className={`w-full ${isElevator ? 'h-8 md:h-12' : 'h-16 md:h-24'} flex items-center justify-center border border-slate-800 bg-white text-slate-800 text-[10px] md:text-xs font-bold tracking-wider my-0.5 print:border-slate-800`}>
         {room.label}
       </div>
     );
@@ -51,9 +51,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
   // Layout classes based on orientation (container shape)
   const containerClasses = {
-    top: "h-32 w-24",
-    left: "h-20 w-32",
-    right: "h-20 w-32"
+    top: "h-24 w-16 md:h-32 md:w-24",
+    left: "h-16 w-24 md:h-20 md:w-32",
+    right: "h-16 w-24 md:h-20 md:w-32"
   };
 
   // Determine effective bed position. 
@@ -63,17 +63,17 @@ const RoomCard: React.FC<RoomCardProps> = ({
   // Bed positioning styles
   // We use absolute positioning for the bed to place it anywhere in the container
   const bedStyles: Record<string, string> = {
-    top: "top-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col",
-    bottom: "bottom-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col-reverse",
-    left: "left-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row",
-    right: "right-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row-reverse"
+    top: "top-1 md:top-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12 flex-col",
+    bottom: "bottom-1 md:bottom-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12 flex-col-reverse",
+    left: "left-1 md:left-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16 flex-row",
+    right: "right-1 md:right-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16 flex-row-reverse"
   };
 
   const pillowStyles: Record<string, string> = {
-    top: "w-full h-3 border-b border-slate-300 bg-white/40",
-    bottom: "w-full h-3 border-t border-slate-300 bg-white/40",
-    left: "w-3 h-full border-r border-slate-300 bg-white/40",
-    right: "w-3 h-full border-l border-slate-300 bg-white/40"
+    top: "w-full h-2 md:h-3 border-b border-slate-300 bg-white/40",
+    bottom: "w-full h-2 md:h-3 border-t border-slate-300 bg-white/40",
+    left: "w-2 md:w-3 h-full border-r border-slate-300 bg-white/40",
+    right: "w-2 md:w-3 h-full border-l border-slate-300 bg-white/40"
   };
 
   const doorClasses = {
@@ -100,7 +100,7 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
       {/* Main Room Content - Centered but avoiding bed if possible, or overlaying z-10 */}
       <div className="absolute inset-0 flex flex-col items-center justify-center p-1 z-10 pointer-events-none">
-        <span className="text-lg font-bold text-slate-900 font-mono leading-none bg-white/50 px-1 rounded backdrop-blur-[1px]">
+        <span className="text-sm md:text-lg font-bold text-slate-900 font-mono leading-none bg-white/50 px-1 rounded backdrop-blur-[1px]">
           {room.number}
         </span>
         
@@ -135,8 +135,8 @@ const RoomCard: React.FC<RoomCardProps> = ({
   return (
     <div className={`flex items-center gap-1 ${orientation === 'left' ? 'justify-end' : 'justify-start'} w-full`}>
       {orientation === 'left' && room.hasTerrace && (
-        <div className="h-20 w-6 bg-blue-50 border-y border-l border-slate-800 rounded-l-sm flex items-center justify-center shrink-0" title="Tiene terraza">
-          <span className="text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] rotate-180 tracking-tighter">TERRAZA</span>
+        <div className="h-16 md:h-20 w-4 md:w-6 bg-blue-50 border-y border-l border-slate-800 rounded-l-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+          <span className="text-[6px] md:text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] rotate-180 tracking-tighter">TERRAZA</span>
         </div>
       )}
 
@@ -593,7 +593,7 @@ export default function App() {
           </div>
 
           {/* Main Corridor Columns */}
-          <div className="flex gap-24 relative">
+          <div className="flex gap-8 md:gap-24 relative">
             {/* Left Column */}
             <div className="flex flex-col gap-0">
               {leftRooms.map(room => (
