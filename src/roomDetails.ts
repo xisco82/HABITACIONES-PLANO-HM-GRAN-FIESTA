@@ -4,103 +4,131 @@ export interface RoomDetail {
   safe?: string;
 }
 
-const RAW_DATA = `
-101	Baldosa		modelo Ibiza	301	Tela		Blanca	501	Baldosa		Blanca	701	Tela		Blanca	901	Baldosa		Blanca
-102	Tela		Blanca	302	Tela		Blanca	502	Baldosa		Blanca	702	Tela		Blanca	902	Baldosa		Blanca
-103	Baldosa		Blanca	303	Tela		Blanca	503	Baldosa		Blanca	703	Tela		Blanca	903	Baldosa		Blanca
-104		Toshiba	Blanca	304	Tela		Blanca	504	Baldosa		Blanca	704	Tela		Blanca	904	Baldosa		Blanca
-105		Smart 	Negra	305		Smart 	Negra	505		Smart 	Negra	705		Smart 	Negra	905			Negra
-106			Negra	306		Smart 	Negra	506		Smart 	Negra	706		Smart 	Negra	906			Negra
-107		Smart 	Negra	307		Smart 	Negra	507		Smart 	Negra	707		Smart 	Negra	907			Negra
-108		Smart 	Negra	308		Smart 	Negra	508		Smart 	Negra	708		Smart 	Negra	908			Negra
-109		Toshiba	Blanca	309	Tela		Blanca	509	Baldosa		Negra	709	Tela		Blanca	909	Baldosa		Blanca
-110	Baldosa		Blanca	310	Tela		Blanca	510	Baldosa		Blanca	710	Tela	Smart 	Blanca	910	Baldosa		Blanca
-111	Baldosa		Blanca	311	Tela		Blanca	511	Baldosa		modelo Ibiza	711	Tela	Smart 	Blanca	911	Baldosa		Blanca
-112	Baldosa		Blanca	312	Tela		Blanca	512	Baldosa		Blanca	712	Tela		Blanca	912	Baldosa		Blanca
-113	Baldosa		Blanca	313	Tela		Blanca	513	Baldosa		Blanca	713	Tela		Blanca	913	Baldosa		Blanca
-114	Baldosa		Blanca	314	Tela		Blanca	514	Baldosa		Blanca	714	Tela		Blanca	914	Baldosa		Blanca
-115	Baldosa		Blanca	315	Tela		Blanca	515	Baldosa		Blanca	715	Tela		Blanca	915	Baldosa	Smart 	Blanca
-116	Baldosa		Blanca	316	Tela		Blanca	516	Baldosa		Blanca	716	Tela		Blanca	916	Baldosa		Blanca
-117	Baldosa		Blanca	317	Tela		Blanca	517	Baldosa		Blanca	717	Tela		Blanca	917	Baldosa		Blanca
-118	Baldosa		Blanca	318	Tela		Blanca	518	Baldosa		Blanca	718	Tela		Blanca	918	Baldosa		Blanca
-119	Baldosa		Blanca	319	Tela	Smart 	Blanca	519	Baldosa		Blanca	719	Tela		Blanca	919	Baldosa		Blanca
-120	Baldosa		Blanca	320	Tela		Blanca	520	Baldosa	Smart 	Blanca	720	Tela		Blanca	920	Baldosa		Blanca
-121	Baldosa		Blanca	321	Tela		Blanca	521	Baldosa		Blanca	721	Tela		Blanca	921	Baldosa		Blanca
-122	Baldosa		Blanca	322	Tela		Blanca	522	Baldosa		Blanca	722	Tela		Blanca	922	Baldosa		Blanca
-123	Baldosa		Blanca	323	Tela		Blanca	523	Baldosa		Blanca	723	Tela		Blanca	923	Baldosa		Blanca
-124	Baldosa		Blanca	324	Tela		Blanca	524	Baldosa		Blanca	724	Tela		Blanca	924	Baldosa		Blanca
-125	Baldosa		Blanca	325	Tela		Blanca	525	Baldosa		Blanca	725	Tela		Blanca	925	Baldosa		Blanca
-126	Baldosa	Android (Engel)	Blanca	326	Tela		Blanca	526	Baldosa		Blanca	726	Tela		Blanca	926	Baldosa		Blanca
-127	Baldosa		Blanca	327	Tela		Blanca	527	Baldosa		Blanca	727	Tela		Blanca	927	Baldosa		Blanca
-128	Baldosa		Blanca	328	Tela		Blanca	528	Baldosa		Blanca	728	Tela		Blanca	928	Baldosa		Blanca
-129	Baldosa		Blanca	329	Tela		Blanca	529	Baldosa		Blanca	729	Tela		Blanca	929	Baldosa		Blanca
-130	Baldosa		Blanca	330	Tela		Blanca	530	Baldosa		Blanca	730	Tela		Blanca	930	Baldosa		Blanca
-131	Baldosa		Blanca	331	Tela		Blanca	531	Baldosa		Blanca	731	Tela		Blanca	931	Baldosa		Blanca
-132	Baldosa		Blanca	332	Tela	NO PIN	Blanca	532	Baldosa		Blanca	732	Tela		Blanca	932	Baldosa		Blanca
-133	Baldosa		Blanca	333	Tela		Blanca	533	Baldosa		Blanca	733	Tela		Blanca	933	Baldosa	Smart 	Blanca
-134	Baldosa		Blanca	334	Tela	NO PIN	Blanca	534	Baldosa		Blanca	734	Tela	Smart 	Blanca	934	Baldosa		Blanca
-135	Baldosa		Blanca	335	Tela		Blanca	535	Baldosa		Blanca	735	Tela		Blanca	935	Baldosa		Blanca
-201	Tela	Smart 	Blanca	401	Tela		Blanca	601	Baldosa		Blanca	801	Tela		Blanca				
-202	Tela		Blanca	402	Tela		Blanca	602	Baldosa	Smart 	Blanca	802	Tela	No funciona (samsung)	Blanca				
-203	Tela		Blanca	403	Tela		Blanca	603	Baldosa		Blanca	803	Tela		Blanca				
-204	Tela		Negra	404	Tela		Blanca	604	Baldosa		Blanca	804	Tela		Blanca				
-205		Smart 	Negra	405		Smart 	Negra	605			Negra	805		Smart 	Negra				
-206		Smart 	Negra	406		Smart 	Negra	606		Smart 	sin cofre	806			Negra				
-207		Smart 	Negra	407		Smart 	Negra	607			Negra	807		Smart 	Negra				
-208		Smart 	Negra	408		Smart 	Negra	608			Negra	808			Negra				
-209	Tela		Blanca	409	Tela		Blanca	609	Baldosa	Smart 	Blanca	809	Tela		Blanca				
-210	Tela		Blanca	410	Tela		Blanca	610	Baldosa		Blanca	810	Tela		Blanca				
-211	Tela		Blanca	411	Tela		Blanca	611	Baldosa		Blanca	811	Tela		Blanca				
-212	Tela		Blanca	412	Tela		Blanca	612	Baldosa		Blanca	812	Tela		Blanca				
-213	Tela		Blanca	413	Tela		Blanca	613	Baldosa		Blanca	813	Tela		Blanca				
-214	Tela		Blanca	414	Tela		Blanca	614	Baldosa		Blanca	814	Tela		Blanca				
-215	Tela		Blanca	415	Tela		Blanca	615	Baldosa		Blanca	815	Tela		Blanca				
-216	Tela		Blanca	416	Tela		Blanca	616	Baldosa		Blanca	816	Tela		Blanca				
-217	Tela		Blanca	417	Tela		Blanca	617	Baldosa	Smart 	Blanca	817	Tela		Blanca				
-218	Tela		Blanca	418	Tela		Blanca	618	Baldosa		Blanca	818	Tela		Blanca				
-219	Tela		Blanca	419	Tela		Blanca	619	Baldosa		Blanca	819	Tela		Blanca				
-220	Tela		Blanca	420	Tela		Blanca	620	Baldosa		Blanca	820	Tela		Blanca				
-221	Tela	Samsung	Blanca	421	Tela		Blanca	621	Baldosa		Blanca	821	Tela		modelo Ibiza				
-222	Tela		Blanca	422	Tela	Smart 	Blanca	622	Baldosa	Smart 	Blanca	822	Tela		Blanca				
-223	Tela		Blanca	423	Tela		Blanca	623	Baldosa		Blanca	823	Tela		Blanca				
-224	Tela		Blanca	424	Tela		Blanca	624	Baldosa		Blanca	824	Tela		Blanca				
-225	Tela		Blanca	425	Tela		Blanca	625	Baldosa		Blanca	825	Tela		Blanca				
-226	Tela		Blanca	426	Tela		Blanca	626	Baldosa		Blanca	826	Tela		Blanca				
-227	Tela		Blanca	427	Tela		Blanca	627	Baldosa		Blanca	827	Tela	Android (Engel)	Blanca				
-228	Tela		Blanca	428	Tela		Blanca	628	Baldosa		Blanca	828	Tela		Blanca				
-229	Tela		Blanca	429	Tela		Blanca	629	Baldosa		Blanca	829	Tela		Blanca				
-230	Tela		Blanca	430	Tela		Blanca	630	Baldosa		Blanca	830	Tela		Blanca				
-231	Tela		Blanca	431	Tela		Blanca	631	Baldosa		Blanca	831	Tela		Blanca				
-232	Tela		Blanca	432	Tela	Smart 	Blanca	632	Baldosa		Blanca	832	Tela		Blanca				
-233	Tela		Blanca	433	Tela		Blanca	633	Tela		Blanca	833	Tela		Blanca				
-234	Tela		Blanca	434	Tela		Blanca	634	Baldosa		Blanca	834	Tela	Hisense dif	Blanca				
-235	Tela		Blanca	435	Tela		Blanca	635	Baldosa		Blanca	835	Tela		Blanca				
-`;
+const DEFAULT_DETAILS: Record<string, RoomDetail> = {};
 
-const parseData = () => {
-  const details: Record<string, RoomDetail> = {};
-  const lines = RAW_DATA.split('\n').filter(l => l.trim());
-
-  lines.forEach(line => {
-    const parts = line.split('\t');
-    // Chunks of 4
-    for (let i = 0; i < parts.length; i += 4) {
-      const room = parts[i]?.trim();
-      if (!room || !/^\d+$/.test(room)) continue;
-
-      const headboard = parts[i+1]?.trim();
-      const tv = parts[i+2]?.trim();
-      const safe = parts[i+3]?.trim();
-      
-      if (headboard || tv || safe) {
-        details[room] = {};
-        if (headboard) details[room].headboard = headboard;
-        if (tv) details[room].tv = tv;
-        if (safe) details[room].safe = safe;
-      }
-    }
-  });
-  return details;
+// Helper to set range
+const setRange = (start: number, end: number, detail: RoomDetail) => {
+  for (let i = start; i <= end; i++) {
+    DEFAULT_DETAILS[i.toString()] = detail;
+  }
 };
 
-export const ROOM_DETAILS = parseData();
+// Helper to set single
+const setSingle = (room: number, detail: RoomDetail) => {
+  DEFAULT_DETAILS[room.toString()] = detail;
+};
+
+// --- Floor 1 ---
+setRange(101, 103, { headboard: "Baldosa", safe: "modelo Ibiza" }); // 101 is diff, fixing below
+setSingle(101, { headboard: "Baldosa", safe: "modelo Ibiza" });
+setSingle(102, { headboard: "Tela", safe: "Blanca" });
+setSingle(103, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(104, { tv: "Toshiba", safe: "Blanca" });
+setSingle(105, { tv: "Smart", safe: "Negra" });
+setSingle(106, { safe: "Negra" });
+setSingle(107, { tv: "Smart", safe: "Negra" });
+setSingle(108, { tv: "Smart", safe: "Negra" });
+setSingle(109, { tv: "Toshiba", safe: "Blanca" });
+setRange(110, 135, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(126, { headboard: "Baldosa", tv: "Android (Engel)", safe: "Blanca" });
+
+// --- Floor 2 ---
+setSingle(201, { headboard: "Tela", tv: "Smart", safe: "Blanca" });
+setRange(202, 203, { headboard: "Tela", safe: "Blanca" });
+setSingle(204, { headboard: "Tela", safe: "Negra" });
+setRange(205, 208, { tv: "Smart", safe: "Negra" });
+setRange(209, 220, { headboard: "Tela", safe: "Blanca" });
+setSingle(221, { headboard: "Tela", tv: "Samsung", safe: "Blanca" });
+setRange(222, 235, { headboard: "Tela", safe: "Blanca" });
+
+// --- Floor 3 ---
+setRange(301, 304, { headboard: "Tela", safe: "Blanca" });
+setRange(305, 308, { tv: "Smart", safe: "Negra" });
+setRange(309, 318, { headboard: "Tela", safe: "Blanca" });
+setSingle(319, { headboard: "Tela", tv: "Smart", safe: "Blanca" });
+setRange(320, 331, { headboard: "Tela", safe: "Blanca" });
+setSingle(332, { headboard: "Tela", tv: "NO PIN", safe: "Blanca" });
+setSingle(333, { headboard: "Tela", safe: "Blanca" });
+setSingle(334, { headboard: "Tela", tv: "NO PIN", safe: "Blanca" });
+setSingle(335, { headboard: "Tela", safe: "Blanca" });
+
+// --- Floor 4 ---
+setRange(401, 404, { headboard: "Tela", safe: "Blanca" });
+setRange(405, 408, { tv: "Smart", safe: "Negra" });
+setRange(409, 421, { headboard: "Tela", safe: "Blanca" });
+setSingle(422, { headboard: "Tela", tv: "Smart", safe: "Blanca" });
+setRange(423, 431, { headboard: "Tela", safe: "Blanca" });
+setSingle(432, { headboard: "Tela", tv: "Smart", safe: "Blanca" });
+setRange(433, 435, { headboard: "Tela", safe: "Blanca" });
+
+// --- Floor 5 ---
+setRange(501, 504, { headboard: "Baldosa", safe: "Blanca" });
+setRange(505, 508, { tv: "Smart", safe: "Negra" });
+setSingle(509, { headboard: "Baldosa", safe: "Negra" });
+setSingle(510, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(511, { headboard: "Baldosa", safe: "modelo Ibiza" });
+setRange(512, 519, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(520, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(521, 535, { headboard: "Baldosa", safe: "Blanca" });
+
+// --- Floor 6 ---
+setSingle(601, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(602, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(603, 604, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(605, { safe: "Negra" });
+setSingle(606, { tv: "Smart", safe: "sin cofre" });
+setRange(607, 608, { safe: "Negra" });
+setSingle(609, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(610, 616, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(617, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(618, 632, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(633, { headboard: "Tela", safe: "Blanca" });
+setRange(634, 635, { headboard: "Baldosa", safe: "Blanca" });
+
+// --- Floor 7 ---
+setRange(701, 704, { headboard: "Tela", safe: "Blanca" });
+setRange(705, 708, { tv: "Smart", safe: "Negra" });
+setSingle(709, { headboard: "Tela", safe: "Blanca" });
+setRange(710, 711, { headboard: "Tela", tv: "Smart", safe: "Blanca" });
+setRange(712, 735, { headboard: "Tela", safe: "Blanca" });
+
+// --- Floor 8 ---
+setSingle(801, { headboard: "Tela", safe: "Blanca" });
+setSingle(802, { headboard: "Tela", tv: "No funciona (samsung)", safe: "Blanca" });
+setRange(803, 804, { headboard: "Tela", safe: "Blanca" });
+setSingle(805, { tv: "Smart", safe: "Negra" });
+setSingle(806, { safe: "Negra" });
+setSingle(807, { tv: "Smart", safe: "Negra" });
+setSingle(808, { safe: "Negra" });
+setRange(809, 820, { headboard: "Tela", safe: "Blanca" });
+setSingle(821, { headboard: "Tela", safe: "modelo Ibiza" });
+setRange(822, 826, { headboard: "Tela", safe: "Blanca" });
+setSingle(827, { headboard: "Tela", tv: "Android (Engel)", safe: "Blanca" });
+setRange(828, 833, { headboard: "Tela", safe: "Blanca" });
+setSingle(834, { headboard: "Tela", tv: "Hisense dif", safe: "Blanca" });
+setSingle(835, { headboard: "Tela", safe: "Blanca" });
+
+// --- Floor 9 ---
+setRange(901, 904, { headboard: "Baldosa", safe: "Blanca" });
+setRange(905, 908, { safe: "Negra" });
+setRange(909, 914, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(915, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(916, 932, { headboard: "Baldosa", safe: "Blanca" });
+setSingle(933, { headboard: "Baldosa", tv: "Smart", safe: "Blanca" });
+setRange(934, 935, { headboard: "Baldosa", safe: "Blanca" });
+
+// --- Update for rooms 05, 06, 07, 08 on all floors ---
+for (let floor = 1; floor <= 9; floor++) {
+  const suffixes = ['05', '06', '07', '08'];
+  suffixes.forEach(suffix => {
+    const roomNum = `${floor}${suffix}`;
+    if (DEFAULT_DETAILS[roomNum]) {
+      DEFAULT_DETAILS[roomNum].headboard = "Papel pintado verde";
+    } else {
+      // Ensure the room exists in details even if not previously set (though it should be)
+      DEFAULT_DETAILS[roomNum] = { headboard: "Papel pintado verde" };
+    }
+  });
+}
+
+export const ROOM_DETAILS = DEFAULT_DETAILS;

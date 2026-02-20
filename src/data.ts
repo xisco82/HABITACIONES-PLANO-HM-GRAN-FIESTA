@@ -35,10 +35,12 @@ const createService = (floor: number, id: string, label: string): RoomData => ({
 });
 
 export const getFloorData = (floor: number) => {
-  const topRooms: RoomData[] = [];
+  const topRooms = [
+    createRoom(floor, '07', 'PVM'),
+    createRoom(floor, '06', 'PVM'),
+  ];
 
   const leftRooms = [
-    createRoom(floor, '07', 'PVM'),
     createRoom(floor, '08', 'PVM'),
     createRoom(floor, '09', floor === 1 ? 'JUNIOR SUITE' : 'PREMIUM'),
     createRoom(floor, '10', 'PREMIUM'),
@@ -60,7 +62,6 @@ export const getFloorData = (floor: number) => {
   ];
 
   const rightRooms = [
-    createRoom(floor, '06', 'PVM'),
     createRoom(floor, '05', 'PVM'),
     createRoom(floor, '04', floor === 1 ? 'JUNIOR SUITE' : 'PREMIUM'),
     createRoom(floor, '03', 'PREMIUM'),
