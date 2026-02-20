@@ -47,11 +47,12 @@ const RoomCard: React.FC<RoomCardProps> = ({
   }
 
   // Layout classes based on orientation (container shape)
+  // UPDATED: More compact dimensions for better fit
   const containerClasses = {
-    top: "h-32 w-24",
-    bottom: "h-32 w-24",
-    left: "h-20 w-48",
-    right: "h-20 w-48"
+    top: "h-28 w-20",     // Was h-32 w-24
+    bottom: "h-28 w-20",  // Was h-32 w-24
+    left: "h-20 w-36",    // Was h-20 w-48
+    right: "h-20 w-36"    // Was h-20 w-48
   };
 
   // Determine effective bed position. 
@@ -61,17 +62,17 @@ const RoomCard: React.FC<RoomCardProps> = ({
   // Bed positioning styles
   // We use absolute positioning for the bed to place it anywhere in the container
   const bedStyles: Record<string, string> = {
-    top: "top-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col",
-    bottom: "bottom-2 left-1/2 -translate-x-1/2 w-16 h-12 flex-col-reverse",
-    left: "left-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row",
-    right: "right-2 top-1/2 -translate-y-1/2 w-12 h-16 flex-row-reverse"
+    top: "top-2 left-1/2 -translate-x-1/2 w-14 h-10 flex-col", // Reduced bed size
+    bottom: "bottom-2 left-1/2 -translate-x-1/2 w-14 h-10 flex-col-reverse",
+    left: "left-2 top-1/2 -translate-y-1/2 w-10 h-14 flex-row",
+    right: "right-2 top-1/2 -translate-y-1/2 w-10 h-14 flex-row-reverse"
   };
 
   const pillowStyles: Record<string, string> = {
-    top: "w-full h-3 border-b border-slate-300 bg-white/40",
-    bottom: "w-full h-3 border-t border-slate-300 bg-white/40",
-    left: "w-3 h-full border-r border-slate-300 bg-white/40",
-    right: "w-3 h-full border-l border-slate-300 bg-white/40"
+    top: "w-full h-2.5 border-b border-slate-300 bg-white/40",
+    bottom: "w-full h-2.5 border-t border-slate-300 bg-white/40",
+    left: "w-2.5 h-full border-r border-slate-300 bg-white/40",
+    right: "w-2.5 h-full border-l border-slate-300 bg-white/40"
   };
 
   const doorClasses = {
@@ -526,7 +527,7 @@ export default function App() {
             // --- MOBILE / VERTICAL LAYOUT (Original) ---
             <>
               {/* Top Rooms */}
-              <div className="flex gap-1 mb-8">
+              <div className="flex gap-1 mb-6">
                 {topRooms.map(room => (
                   <div key={room.id}>
                     <RoomCard 
@@ -541,7 +542,7 @@ export default function App() {
               </div>
 
               {/* Main Corridor Columns */}
-              <div className="flex gap-24 relative">
+              <div className="flex gap-8 relative"> {/* Reduced gap from 24 to 8 */}
                 {/* Left Column */}
                 <div className="flex flex-col gap-0">
                   {leftRooms.map(room => (
@@ -576,14 +577,9 @@ export default function App() {
             </>
           ) : (
             // --- DESKTOP / HORIZONTAL LAYOUT (Rotated -90deg) ---
-            <div className="flex flex-row items-center gap-0">
+            <div className="flex flex-row items-center gap-0 overflow-x-auto pb-4 max-w-full px-4">
               {/* Left Wing (was Top Rooms) - Now Vertical Bridge */}
-              <div className="flex flex-col gap-1 mr-8 justify-center">
-                 {/* Reverse order to match rotation logic if needed, or keep as is */}
-                 {/* Top rooms 107, 106 usually sit at the 'top' of the U. 
-                     In horizontal U (opening right), they are the left bridge.
-                     107 is usually left of 106. So 107 is Top, 106 is Bottom?
-                 */}
+              <div className="flex flex-col gap-1 mr-0 justify-center z-10">
                 {topRooms.map(room => (
                   <div key={room.id}>
                     <RoomCard 
@@ -598,7 +594,7 @@ export default function App() {
               </div>
 
               {/* Main Corridor Rows */}
-              <div className="flex flex-col gap-24 relative">
+              <div className="flex flex-col gap-16 relative"> {/* Gap 16 = 4rem = 64px corridor width */}
                 {/* Top Row (was Left Column 108...125) */}
                 <div className="flex flex-row gap-0">
                   {leftRooms.map(room => (
