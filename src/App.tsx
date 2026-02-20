@@ -365,12 +365,22 @@ const Modal = ({
                   <button
                     type="submit"
                     disabled={!newObs.trim()}
-                    className="bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-sm"
                   >
-                    <Plus className="w-5 h-5" />
+                    Añadir
                   </button>
                 </div>
               </form>
+            </div>
+
+            {/* Footer with Accept Button */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200">
+              <button
+                onClick={onClose}
+                className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-slate-900 transition-colors shadow-lg"
+              >
+                Aceptar y Cerrar
+              </button>
             </div>
           </motion.div>
         </>
