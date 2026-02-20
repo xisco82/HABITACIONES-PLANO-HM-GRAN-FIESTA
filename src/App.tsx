@@ -270,6 +270,7 @@ const Modal = ({
                     <option value="">-</option>
                     <option value="BALDOSA">BALDOSA</option>
                     <option value="TELA">TELA</option>
+                    <option value="PAPEL PINTADO VERDE">PAPEL PINTADO VERDE</option>
                   </select>
                 </div>
                 <div className="flex flex-col border-l border-blue-200 pl-2">
