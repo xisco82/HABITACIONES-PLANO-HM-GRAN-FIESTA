@@ -19,6 +19,9 @@ import {
 import { RoomData, Observation, BedPosition } from './types';
 import { getFloorData } from './data';
 import { getAllIssues } from './issues';
+import { db, auth } from './firebase';
+import { collection, onSnapshot, addDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { onAuthStateChanged, signInAnonymously, User } from 'firebase/auth';
 
 // --- Components ---
 
@@ -210,7 +213,8 @@ const Modal = ({
   onUpdateTV,
   currentTV,
   onUpdateSafe,
-  currentSafe
+  currentSafe,
+  currentUser
 }: { 
   isOpen: boolean; 
   onClose: () => void; 
@@ -226,6 +230,7 @@ const Modal = ({
   currentTV?: string;
   onUpdateSafe: (val: string) => void;
   currentSafe?: string;
+  currentUser: User | null;
 }) => {
   const [newObs, setNewObs] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -401,12 +406,15 @@ const Modal = ({
                     <span className="text-[10px] text-slate-400 mt-2 block">
                       {new Date(obs.timestamp).toLocaleString()}
                     </span>
-                    <button
-                      onClick={() => onDeleteObservation(obs.id)}
-                      className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    {currentUser && obs.userId === currentUser.uid && (
+                      <button
+                        onClick={() => onDeleteObservation(obs.id)}
+                        className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
+                        title="Eliminar (Solo el creador puede eliminar)"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 ))
               )}
@@ -486,6 +494,7 @@ export default function App() {
   const [roomConfigs, setRoomConfigs] = useState<Record<string, { bedPosition?: BedPosition; headboard?: string; tv?: string; safe?: string }>>({});
   const [selectedRoom, setSelectedRoom] = useState<RoomData | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -507,91 +516,121 @@ export default function App() {
 
   const { topRooms, leftRooms, rightRooms } = useMemo(() => getFloorData(currentFloor), [currentFloor]);
 
-  // Load from localStorage on mount
+  // Load from Firestore (Public access)
   useEffect(() => {
-    const savedObs = localStorage.getItem('hotel-observations');
-    if (savedObs) {
-      try {
-        setObservations(JSON.parse(savedObs));
-      } catch (e) {
-        console.error('Failed to load observations', e);
-      }
-    }
+    const unsubscribeObs = onSnapshot(collection(db, "observations"), (snapshot) => {
+      const newObservations: Record<string, Observation[]> = {};
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        const obs: Observation = { 
+          id: doc.id, 
+          roomId: data.roomId,
+          text: data.text,
+          timestamp: data.timestamp,
+          userId: data.userId
+        };
+        if (!newObservations[obs.roomId]) {
+          newObservations[obs.roomId] = [];
+        }
+        newObservations[obs.roomId].push(obs);
+      });
+      // Sort observations by timestamp (newest first)
+      Object.keys(newObservations).forEach(key => {
+        newObservations[key].sort((a, b) => b.timestamp - a.timestamp);
+      });
+      setObservations(newObservations);
+    }, (error) => {
+      console.error("Error fetching observations:", error);
+    });
 
-    const savedConfigs = localStorage.getItem('hotel-room-configs');
-    if (savedConfigs) {
-      try {
-        setRoomConfigs(JSON.parse(savedConfigs));
-      } catch (e) {
-        console.error('Failed to load room configs', e);
-      }
-    }
+    const unsubscribeConfigs = onSnapshot(collection(db, "roomConfigs"), (snapshot) => {
+      const newConfigs: Record<string, any> = {};
+      snapshot.forEach((doc) => {
+        newConfigs[doc.id] = doc.data();
+      });
+      setRoomConfigs(newConfigs);
+    }, (error) => {
+      console.error("Error fetching room configs:", error);
+    });
+
+    return () => {
+      unsubscribeObs();
+      unsubscribeConfigs();
+    };
   }, []);
 
-  // Save to localStorage on change
+  // Auth handling
   useEffect(() => {
-    localStorage.setItem('hotel-observations', JSON.stringify(observations));
-  }, [observations]);
+    const unsubscribeAuth = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+      } else {
+        signInAnonymously(auth).catch((error) => {
+          console.warn("Anonymous auth failed, using guest mode:", error);
+          // Fallback for when Auth is not enabled but Rules are public
+          let guestId = localStorage.getItem('guest_uid');
+          if (!guestId) {
+            guestId = 'guest-' + Math.random().toString(36).slice(2);
+            localStorage.setItem('guest_uid', guestId);
+          }
+          setUser({ uid: guestId } as User);
+        });
+      }
+    });
 
-  useEffect(() => {
-    localStorage.setItem('hotel-room-configs', JSON.stringify(roomConfigs));
-  }, [roomConfigs]);
+    return () => unsubscribeAuth();
+  }, []);
 
-  const handleAddObservation = (text: string) => {
-    if (!selectedRoom) return;
+  const handleAddObservation = async (text: string) => {
+    if (!selectedRoom || !user) return;
     
-    const newObs: Observation = {
-      id: crypto.randomUUID(),
-      roomId: selectedRoom.id,
-      text,
-      timestamp: Date.now(),
-    };
-
-    setObservations(prev => ({
-      ...prev,
-      [selectedRoom.id]: [newObs, ...(prev[selectedRoom.id] || [])]
-    }));
+    try {
+      await addDoc(collection(db, "observations"), {
+        roomId: selectedRoom.id,
+        text,
+        timestamp: Date.now(),
+        userId: user.uid
+      });
+    } catch (e) {
+      console.error("Error adding observation: ", e);
+    }
   };
 
-  const handleDeleteObservation = (id: string) => {
-    if (!selectedRoom) return;
+  const handleDeleteObservation = async (id: string) => {
+    try {
+      await deleteDoc(doc(db, "observations", id));
+    } catch (e) {
+      console.error("Error deleting observation: ", e);
+    }
+  };
 
-    setObservations(prev => ({
-      ...prev,
-      [selectedRoom.id]: prev[selectedRoom.id].filter(obs => obs.id !== id)
-    }));
+  const updateRoomConfig = async (roomId: string, data: Partial<any>) => {
+    try {
+      const ref = doc(db, "roomConfigs", roomId);
+      await setDoc(ref, data, { merge: true });
+    } catch (e) {
+      console.error("Error updating room config: ", e);
+    }
   };
 
   const handleUpdateBedPosition = (pos: BedPosition) => {
     if (!selectedRoom) return;
-    setRoomConfigs(prev => ({
-      ...prev,
-      [selectedRoom.id]: { ...prev[selectedRoom.id], bedPosition: pos }
-    }));
+    updateRoomConfig(selectedRoom.id, { bedPosition: pos });
   };
 
   const handleUpdateHeadboard = (headboard: string) => {
     if (!selectedRoom) return;
-    setRoomConfigs(prev => ({
-      ...prev,
-      [selectedRoom.id]: { ...prev[selectedRoom.id], headboard }
-    }));
+    updateRoomConfig(selectedRoom.id, { headboard });
   };
 
   const handleUpdateTV = (tv: string) => {
     if (!selectedRoom) return;
-    setRoomConfigs(prev => ({
-      ...prev,
-      [selectedRoom.id]: { ...prev[selectedRoom.id], tv }
-    }));
+    updateRoomConfig(selectedRoom.id, { tv });
   };
 
   const handleUpdateSafe = (safe: string) => {
     if (!selectedRoom) return;
-    setRoomConfigs(prev => ({
-      ...prev,
-      [selectedRoom.id]: { ...prev[selectedRoom.id], safe }
-    }));
+    updateRoomConfig(selectedRoom.id, { safe });
   };
 
   const getRoomObs = (id: string) => observations[id] || [];
@@ -764,6 +803,7 @@ export default function App() {
         currentTV={selectedRoom ? getRoomConfig(selectedRoom.id).tv : undefined}
         onUpdateSafe={handleUpdateSafe}
         currentSafe={selectedRoom ? getRoomConfig(selectedRoom.id).safe : undefined}
+        currentUser={user}
       />
     </div>
   );

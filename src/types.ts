@@ -19,4 +19,5 @@ export interface Observation {
   roomId: string;
   text: string;
   timestamp: number;
+  userId?: string;
 }
