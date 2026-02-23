@@ -136,11 +136,14 @@ const RoomCard: React.FC<RoomCardProps> = ({
     const is06 = room.number.endsWith('06');
 
     return (
-      <div className="flex items-center gap-1">
+      <div className="flex items-stretch gap-1">
         {/* Observations Left (for 07) */}
         {is07 && hasObservations && (
-           <div className="text-[10px] text-slate-600 font-medium text-right w-[120px] mr-1 flex flex-col justify-center">
-              {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+           <div className="flex flex-col w-[120px] mr-1">
+              {room.hasTerrace && <div className="h-4 md:h-6 mb-1 shrink-0" />}
+              <div className="flex-1 flex flex-col justify-center text-[10px] text-slate-600 font-medium text-right">
+                  {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+              </div>
            </div>
         )}
 
@@ -155,8 +158,11 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
         {/* Observations Right (for 06) */}
         {is06 && hasObservations && (
-           <div className="text-[10px] text-slate-600 font-medium text-left w-[120px] ml-1 flex flex-col justify-center">
-              {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+           <div className="flex flex-col w-[120px] ml-1">
+              {room.hasTerrace && <div className="h-4 md:h-6 mb-1 shrink-0" />}
+              <div className="flex-1 flex flex-col justify-center text-[10px] text-slate-600 font-medium text-left">
+                  {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+              </div>
            </div>
         )}
       </div>
