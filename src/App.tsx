@@ -171,15 +171,15 @@ const RoomCard: React.FC<RoomCardProps> = ({
 
   return (
     <div className={`flex items-center gap-1 ${orientation === 'left' ? 'justify-end' : 'justify-start'} w-full`}>
-      {orientation === 'left' && room.hasTerrace && (
-        <div className="h-16 md:h-20 w-4 md:w-6 bg-blue-50 border-y border-l border-slate-800 rounded-l-sm flex items-center justify-center shrink-0" title="Tiene terraza">
-          <span className="text-[6px] md:text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] rotate-180 tracking-tighter">TERRAZA</span>
-        </div>
-      )}
-
       {orientation === 'left' && hasObservations && (
         <div className="text-[10px] text-slate-600 font-medium text-right flex-1 min-w-[100px] max-w-[200px]">
            {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+        </div>
+      )}
+
+      {orientation === 'left' && room.hasTerrace && (
+        <div className="h-16 md:h-20 w-4 md:w-6 bg-blue-50 border-y border-l border-slate-800 rounded-l-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+          <span className="text-[6px] md:text-[7px] font-bold text-blue-700 [writing-mode:vertical-lr] rotate-180 tracking-tighter">TERRAZA</span>
         </div>
       )}
 
