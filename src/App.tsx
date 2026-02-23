@@ -107,8 +107,8 @@ const RoomCard: React.FC<RoomCardProps> = ({
           {room.number}
         </span>
         
-        {/* Observations Text - Only for TOP orientation inside */}
-        {hasObservations && orientation === 'top' && (
+        {/* Observations Text - Only for TOP orientation inside (excluding 06 and 07 which show outside) */}
+        {hasObservations && orientation === 'top' && !room.number.endsWith('06') && !room.number.endsWith('07') && (
           <div className="w-full mt-1 text-[9px] leading-tight text-amber-900 font-medium text-center overflow-hidden px-1 bg-white/80 rounded">
             {observations.map((obs) => (
               <span key={obs.id} className="block truncate">
@@ -132,14 +132,33 @@ const RoomCard: React.FC<RoomCardProps> = ({
   );
 
   if (orientation === 'top') {
+    const is07 = room.number.endsWith('07');
+    const is06 = room.number.endsWith('06');
+
     return (
-      <div className="flex flex-col items-center gap-1">
-        {room.hasTerrace && (
-          <div className="w-16 md:w-24 h-4 md:h-6 bg-blue-50 border-x border-t border-slate-800 rounded-t-sm flex items-center justify-center shrink-0" title="Tiene terraza">
-            <span className="text-[6px] md:text-[7px] font-bold text-blue-700 tracking-tighter">TERRAZA</span>
-          </div>
+      <div className="flex items-center gap-1">
+        {/* Observations Left (for 07) */}
+        {is07 && hasObservations && (
+           <div className="text-[10px] text-slate-600 font-medium text-right w-[120px] mr-1 flex flex-col justify-center">
+              {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+           </div>
         )}
-        {cardContent}
+
+        <div className="flex flex-col items-center gap-1">
+          {room.hasTerrace && (
+            <div className="w-16 md:w-24 h-4 md:h-6 bg-blue-50 border-x border-t border-slate-800 rounded-t-sm flex items-center justify-center shrink-0" title="Tiene terraza">
+              <span className="text-[6px] md:text-[7px] font-bold text-blue-700 tracking-tighter">TERRAZA</span>
+            </div>
+          )}
+          {cardContent}
+        </div>
+
+        {/* Observations Right (for 06) */}
+        {is06 && hasObservations && (
+           <div className="text-[10px] text-slate-600 font-medium text-left w-[120px] ml-1 flex flex-col justify-center">
+              {observations.map(obs => <div key={obs.id} className="leading-tight mb-0.5 break-words">{obs.text}</div>)}
+           </div>
+        )}
       </div>
     );
   }
