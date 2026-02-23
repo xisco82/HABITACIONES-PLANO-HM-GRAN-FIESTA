@@ -225,6 +225,7 @@ const Modal = ({
   observations, 
   onAddObservation, 
   onDeleteObservation,
+  onUpdateObservation,
   onUpdateBedPosition,
   currentBedPosition,
   onUpdateHeadboard,
@@ -241,6 +242,7 @@ const Modal = ({
   observations: Observation[]; 
   onAddObservation: (text: string) => void; 
   onDeleteObservation: (id: string) => void; 
+  onUpdateObservation: (id: string, newText: string) => void;
   onUpdateBedPosition: (pos: BedPosition) => void;
   currentBedPosition?: BedPosition;
   onUpdateHeadboard: (val: string) => void;
@@ -252,6 +254,8 @@ const Modal = ({
   currentUser: User | null;
 }) => {
   const [newObs, setNewObs] = useState('');
+  const [editingObsId, setEditingObsId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   
@@ -261,10 +265,30 @@ const Modal = ({
   useEffect(() => {
     if (!isOpen) {
       setNewObs('');
+      setEditingObsId(null);
+      setEditingText('');
       setSuggestions([]);
       setShowSuggestions(false);
     }
   }, [isOpen]);
+
+  const startEditing = (obs: Observation) => {
+    setEditingObsId(obs.id);
+    setEditingText(obs.text);
+  };
+
+  const saveEdit = (id: string) => {
+    if (editingText.trim()) {
+      onUpdateObservation(id, editingText);
+      setEditingObsId(null);
+      setEditingText('');
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingObsId(null);
+    setEditingText('');
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -421,18 +445,55 @@ const Modal = ({
               ) : (
                 observations.map((obs) => (
                   <div key={obs.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm group relative">
-                    <p className="text-slate-700 text-sm pr-6 font-medium">{obs.text}</p>
-                    <span className="text-[10px] text-slate-400 mt-2 block">
-                      {new Date(obs.timestamp).toLocaleString()}
-                    </span>
-                    {currentUser && obs.userId === currentUser.uid && (
-                      <button
-                        onClick={() => onDeleteObservation(obs.id)}
-                        className="absolute top-2 right-2 p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded opacity-0 group-hover:opacity-100 transition-all"
-                        title="Eliminar (Solo el creador puede eliminar)"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    {editingObsId === obs.id ? (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          className="flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          autoFocus
+                        />
+                        <button onClick={() => saveEdit(obs.id)} className="text-green-600 hover:bg-green-50 p-1 rounded">
+                          <span className="text-xs font-bold">OK</span>
+                        </button>
+                        <button onClick={cancelEdit} className="text-slate-400 hover:bg-slate-100 p-1 rounded">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <p 
+                          className="text-slate-700 text-sm pr-16 font-medium cursor-pointer hover:text-blue-600 transition-colors"
+                          onClick={() => startEditing(obs)}
+                          title="Click para editar"
+                        >
+                          {obs.text}
+                        </p>
+                        <span className="text-[10px] text-slate-400 mt-2 block">
+                          {new Date(obs.timestamp).toLocaleString()}
+                        </span>
+                        
+                        <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-all">
+                          {/* Edit Button */}
+                          <button
+                            onClick={() => startEditing(obs)}
+                            className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                            title="Editar"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                          </button>
+                          
+                          {/* Delete Button - Always visible now per request */}
+                          <button
+                            onClick={() => onDeleteObservation(obs.id)}
+                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded"
+                            title="Eliminar"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </>
                     )}
                   </div>
                 ))
@@ -620,6 +681,15 @@ export default function App() {
       await deleteDoc(doc(db, "observations", id));
     } catch (e) {
       console.error("Error deleting observation: ", e);
+    }
+  };
+
+  const handleUpdateObservation = async (id: string, newText: string) => {
+    try {
+      const ref = doc(db, "observations", id);
+      await setDoc(ref, { text: newText }, { merge: true });
+    } catch (e) {
+      console.error("Error updating observation: ", e);
     }
   };
 
@@ -814,6 +884,7 @@ export default function App() {
         observations={selectedRoom ? getRoomObs(selectedRoom.id) : []}
         onAddObservation={handleAddObservation}
         onDeleteObservation={handleDeleteObservation}
+        onUpdateObservation={handleUpdateObservation}
         onUpdateBedPosition={handleUpdateBedPosition}
         currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
         onUpdateHeadboard={handleUpdateHeadboard}
