@@ -70,6 +70,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
     // Exceptions (Double Bed / Not Split):
     // - Ends with 06 or 07
     if (num.endsWith('06') || num.endsWith('07')) return false;
+
+    // - Junior Suites (104, 109)
+    if (num === '104' || num === '109') return false;
     
     // - Ends with 27, 28, 29 (except on 9th floor where they are twin)
     if (num.endsWith('27') || num.endsWith('28') || num.endsWith('29')) {
