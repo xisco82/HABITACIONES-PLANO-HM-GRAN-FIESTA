@@ -63,20 +63,82 @@ const RoomCard: React.FC<RoomCardProps> = ({
   // If no override provided, default to the room's orientation logic.
   const effectiveBedPos = bedPosition || orientation;
 
-  // Bed positioning styles
-  // We use absolute positioning for the bed to place it anywhere in the container
-  const bedStyles: Record<string, string> = {
-    top: "top-1 md:top-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12 flex-col",
-    bottom: "bottom-1 md:bottom-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12 flex-col-reverse",
-    left: "left-1 md:left-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16 flex-row",
-    right: "right-1 md:right-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16 flex-row-reverse"
+  // Determine if room should have twin beds (split) or double bed (single)
+  const isTwin = useMemo(() => {
+    const num = room.number;
+    
+    // Exceptions (Double Bed / Not Split):
+    // - Ends with 06 or 07
+    if (num.endsWith('06') || num.endsWith('07')) return false;
+    
+    // - Ends with 27, 28, 29 (except on 9th floor where they are twin)
+    if (num.endsWith('27') || num.endsWith('28') || num.endsWith('29')) {
+       if (num.startsWith('9')) return true; // 927, 928, 929 are twin
+       return false; // 127-829 are double
+    }
+    
+    return true; // Default to twin
+  }, [room.number]);
+
+  // Unified bed container styles (using absolute positioning for children)
+  const bedContainerStyles: Record<string, string> = {
+    top: "top-1 md:top-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12",
+    bottom: "bottom-1 md:bottom-2 left-1/2 -translate-x-1/2 w-10 md:w-16 h-8 md:h-12",
+    left: "left-1 md:left-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16",
+    right: "right-1 md:right-2 top-1/2 -translate-y-1/2 w-8 md:w-12 h-10 md:h-16"
   };
 
-  const pillowStyles: Record<string, string> = {
-    top: "w-full h-2 md:h-3 border-b border-slate-300 bg-white/40",
-    bottom: "w-full h-2 md:h-3 border-t border-slate-300 bg-white/40",
-    left: "w-2 md:w-3 h-full border-r border-slate-300 bg-white/40",
-    right: "w-2 md:w-3 h-full border-l border-slate-300 bg-white/40"
+  const separatorStyles: Record<string, string> = {
+    top: "absolute top-0 bottom-0 left-1/2 w-px bg-slate-400/50",
+    bottom: "absolute top-0 bottom-0 left-1/2 w-px bg-slate-400/50",
+    left: "absolute left-0 right-0 top-1/2 h-px bg-slate-400/50",
+    right: "absolute left-0 right-0 top-1/2 h-px bg-slate-400/50"
+  };
+
+  const renderPillows = () => {
+    const commonPillowClass = "absolute bg-white/60 border-slate-300";
+    
+    if (isTwin) {
+      // Two pillows
+      switch (effectiveBedPos) {
+        case 'top':
+          return (
+            <>
+              <div className={`${commonPillowClass} top-0 left-0 w-[45%] h-2 md:h-3 border-b border-r rounded-br-sm`} />
+              <div className={`${commonPillowClass} top-0 right-0 w-[45%] h-2 md:h-3 border-b border-l rounded-bl-sm`} />
+            </>
+          );
+        case 'bottom':
+          return (
+            <>
+              <div className={`${commonPillowClass} bottom-0 left-0 w-[45%] h-2 md:h-3 border-t border-r rounded-tr-sm`} />
+              <div className={`${commonPillowClass} bottom-0 right-0 w-[45%] h-2 md:h-3 border-t border-l rounded-tl-sm`} />
+            </>
+          );
+        case 'left':
+          return (
+            <>
+              <div className={`${commonPillowClass} top-0 left-0 w-2 md:w-3 h-[45%] border-r border-b rounded-br-sm`} />
+              <div className={`${commonPillowClass} bottom-0 left-0 w-2 md:w-3 h-[45%] border-r border-t rounded-tr-sm`} />
+            </>
+          );
+        case 'right':
+          return (
+            <>
+              <div className={`${commonPillowClass} top-0 right-0 w-2 md:w-3 h-[45%] border-l border-b rounded-bl-sm`} />
+              <div className={`${commonPillowClass} bottom-0 right-0 w-2 md:w-3 h-[45%] border-l border-t rounded-tl-sm`} />
+            </>
+          );
+      }
+    } else {
+      // Single pillow
+      switch (effectiveBedPos) {
+        case 'top': return <div className={`${commonPillowClass} top-0 w-full h-2 md:h-3 border-b`} />;
+        case 'bottom': return <div className={`${commonPillowClass} bottom-0 w-full h-2 md:h-3 border-t`} />;
+        case 'left': return <div className={`${commonPillowClass} left-0 h-full w-2 md:w-3 border-r`} />;
+        case 'right': return <div className={`${commonPillowClass} right-0 h-full w-2 md:w-3 border-l`} />;
+      }
+    }
   };
 
   const doorClasses = {
@@ -97,8 +159,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
       `}
     >
       {/* Bed Area - Absolute Positioned */}
-      <div className={`absolute border border-slate-300 bg-blue-100 rounded-sm shadow-sm flex ${bedStyles[effectiveBedPos]}`}>
-        <div className={pillowStyles[effectiveBedPos]} />
+      <div className={`absolute border border-slate-300 bg-blue-100 rounded-sm shadow-sm ${bedContainerStyles[effectiveBedPos]}`}>
+        {renderPillows()}
+        {isTwin && <div className={separatorStyles[effectiveBedPos]} />}
       </div>
 
       {/* Main Room Content - Centered but avoiding bed if possible, or overlaying z-10 */}
@@ -731,6 +794,22 @@ export default function App() {
   const getRoomObs = (id: string) => observations[id] || [];
   const getRoomConfig = (id: string) => roomConfigs[id] || {};
 
+  // Helper to get bed position with inheritance from Floor 1
+  const getBedPosition = (roomId: string): BedPosition | undefined => {
+    // 1. Specific config for this room
+    if (roomConfigs[roomId]?.bedPosition) {
+      return roomConfigs[roomId].bedPosition;
+    }
+    // 2. Inherit from Floor 1 (if we are not on floor 1)
+    if (roomId.length === 3 && !roomId.startsWith('1')) {
+      const floor1Id = '1' + roomId.slice(1);
+      if (roomConfigs[floor1Id]?.bedPosition) {
+        return roomConfigs[floor1Id].bedPosition;
+      }
+    }
+    return undefined;
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 md:py-8 md:px-4 flex flex-col items-center">
       <header className="mb-6 text-center max-w-2xl p-4 md:p-0 w-full">
@@ -806,7 +885,7 @@ export default function App() {
                     onClick={() => setSelectedRoom(room)}
                     observations={getRoomObs(room.id)}
                     orientation="top"
-                    bedPosition={getRoomConfig(room.id).bedPosition}
+                    bedPosition={getBedPosition(room.id)}
                   />
                 </div>
               ))}
@@ -823,7 +902,7 @@ export default function App() {
                     onClick={() => setSelectedRoom(room)}
                     observations={getRoomObs(room.id)}
                     orientation="left"
-                    bedPosition={getRoomConfig(room.id).bedPosition}
+                    bedPosition={getBedPosition(room.id)}
                   />
                 ))}
               </div>
@@ -840,7 +919,7 @@ export default function App() {
                     onClick={() => setSelectedRoom(room)}
                     observations={getRoomObs(room.id)}
                     orientation="right"
-                    bedPosition={getRoomConfig(room.id).bedPosition}
+                    bedPosition={getBedPosition(room.id)}
                   />
                 ))}
               </div>
@@ -892,7 +971,7 @@ export default function App() {
         onDeleteObservation={handleDeleteObservation}
         onUpdateObservation={handleUpdateObservation}
         onUpdateBedPosition={handleUpdateBedPosition}
-        currentBedPosition={selectedRoom ? getRoomConfig(selectedRoom.id).bedPosition : undefined}
+        currentBedPosition={selectedRoom ? getBedPosition(selectedRoom.id) : undefined}
         onUpdateHeadboard={handleUpdateHeadboard}
         currentHeadboard={selectedRoom ? getRoomConfig(selectedRoom.id).headboard : undefined}
         onUpdateTV={handleUpdateTV}
