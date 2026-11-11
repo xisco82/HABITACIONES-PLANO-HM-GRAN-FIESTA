@@ -145,9 +145,9 @@ const RoomCard: React.FC<RoomCardProps> = ({
   };
 
   const doorClasses = {
-    top: "absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-8 h-2 bg-blue-600",
-    left: "absolute right-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-blue-600",
-    right: "absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-blue-600"
+    top: "absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-8 h-2 bg-indigo-600",
+    left: "absolute right-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-indigo-600",
+    right: "absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-8 bg-indigo-600"
   };
 
   const cardContent = (
@@ -156,13 +156,13 @@ const RoomCard: React.FC<RoomCardProps> = ({
       whileTap={{ scale: 0.98 }}
       onClick={onClick}
       className={`
-        relative bg-white border border-slate-800 transition-colors my-0.5 group overflow-hidden shrink-0
+        relative bg-white border border-slate-800 transition-colors my-0.5 group overflow-hidden shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1
         ${containerClasses[orientation]}
         ${hasObservations ? 'bg-amber-50' : ''}
       `}
     >
       {/* Bed Area - Absolute Positioned */}
-      <div className={`absolute border border-slate-300 bg-blue-100 rounded-sm shadow-sm ${bedContainerStyles[effectiveBedPos]}`}>
+      <div className={`absolute border border-slate-300 bg-indigo-100 rounded-sm shadow-sm ${bedContainerStyles[effectiveBedPos]}`}>
         {renderPillows()}
         {isTwin && <div className={separatorStyles[effectiveBedPos]} />}
       </div>
@@ -267,20 +267,20 @@ const RoomCard: React.FC<RoomCardProps> = ({
 };
 
 const FloorSelector = ({ current, onChange }: { current: number, onChange: (f: number) => void }) => (
-  <div className="flex flex-col items-center gap-2 mb-6">
-    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-      <Layers className="w-3 h-3" /> Seleccionar Planta
+  <div className="flex flex-col items-center gap-2 mb-6 w-full max-w-4xl">
+    <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+      <Layers className="w-4 h-4 text-indigo-600" /> Seleccionar Planta
     </span>
-    <div className="flex gap-2 overflow-x-auto pb-2 max-w-full justify-center px-4">
+    <div className="flex flex-wrap gap-1 sm:gap-2 pb-2 max-w-full justify-center px-4">
       {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(floor => (
         <button
           key={floor}
           onClick={() => onChange(floor)}
           className={`
-            w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all flex-shrink-0
+            w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-display font-bold text-sm sm:text-base transition-all flex-shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2
             ${current === floor 
-              ? 'bg-blue-600 text-white shadow-lg scale-110 ring-2 ring-blue-200' 
-              : 'bg-white text-slate-600 hover:bg-blue-50 border border-slate-200'}
+              ? 'bg-indigo-600/10 text-indigo-600 ring-1 ring-indigo-600/30' 
+              : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200'}
           `}
         >
           {floor}
@@ -406,26 +406,27 @@ const Modal = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-40"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 m-auto w-full max-w-md h-fit max-h-[90vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
+            className="fixed inset-0 m-auto w-[calc(100%-2rem)] max-w-md h-fit max-h-[90vh] bg-white rounded-2xl shadow-2xl z-50 overflow-hidden flex flex-col"
           >
             {/* Header */}
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+            <div className="px-5 py-4 border-b border-slate-200 flex items-center justify-between bg-white">
               <div>
-                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <h2 className="font-display text-xl font-bold text-slate-900 flex items-center gap-2">
                   Habitación {room.number}
-                  {room.isAccessible && <Accessibility className="w-5 h-5 text-blue-500" />}
+                  {room.isAccessible && <Accessibility className="w-5 h-5 text-indigo-600" />}
                 </h2>
                 <p className="text-sm text-slate-500 font-medium">{room.type}</p>
               </div>
               <button 
                 onClick={onClose}
-                className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+                aria-label="Cerrar"
+                className="p-2 hover:bg-slate-100 rounded-xl transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
               >
                 <X className="w-5 h-5 text-slate-500" />
               </button>
@@ -433,15 +434,15 @@ const Modal = ({
 
             {/* Room Details Info Box */}
             <div className="px-4 pt-4 space-y-3">
-              <div className="bg-blue-50 rounded-lg p-3 grid grid-cols-3 gap-2 text-xs border border-blue-100">
+              <div className="bg-indigo-50/60 rounded-xl p-3 grid grid-cols-3 gap-2 text-xs border border-indigo-100">
                 <div className="flex flex-col">
-                  <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Cabezal</span>
+                  <span className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">Cabezal</span>
                   <div className="flex flex-col">
                     <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.headboard || '-'}</span>
                     <select 
                       value={currentHeadboard || room.headboard || ''} 
                       onChange={(e) => onUpdateHeadboard(e.target.value)}
-                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs appearance-none cursor-pointer"
+                      className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 focus:outline-none focus:border-amber-500 py-0.5 text-xs appearance-none cursor-pointer"
                     >
                       <option value="Baldosa">Baldosa</option>
                       <option value="Tela">Tela</option>
@@ -453,8 +454,8 @@ const Modal = ({
                     </select>
                   </div>
                 </div>
-                <div className="flex flex-col border-l border-blue-200 pl-2">
-                  <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">TV</span>
+                <div className="flex flex-col border-l border-indigo-100 pl-2">
+                  <span className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">TV</span>
                   <div className="flex flex-col">
                     <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.tv || '-'}</span>
                     <input 
@@ -462,12 +463,12 @@ const Modal = ({
                       value={currentTV !== undefined ? currentTV : (room.tv || '')} 
                       onChange={(e) => onUpdateTV(e.target.value)}
                       placeholder="Marca/Modelo..."
-                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs w-full"
+                      className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 focus:outline-none focus:border-amber-500 py-0.5 text-xs w-full"
                     />
                   </div>
                 </div>
-                <div className="flex flex-col border-l border-blue-200 pl-2">
-                  <span className="text-blue-400 font-bold uppercase tracking-wider text-[10px]">Caja Fuerte</span>
+                <div className="flex flex-col border-l border-indigo-100 pl-2">
+                  <span className="text-indigo-600 font-semibold uppercase tracking-wider text-[10px]">Caja Fuerte</span>
                   <div className="flex flex-col">
                     <span className="text-[9px] text-slate-400 italic leading-tight mb-1">Original: {room.safe || '-'}</span>
                     <input 
@@ -475,15 +476,15 @@ const Modal = ({
                       value={currentSafe !== undefined ? currentSafe : (room.safe || '')} 
                       onChange={(e) => onUpdateSafe(e.target.value)}
                       placeholder="Marca/Modelo..."
-                      className="font-semibold text-slate-700 bg-transparent border-b border-blue-200 focus:outline-none focus:border-blue-500 py-0.5 text-xs w-full"
+                      className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 focus:outline-none focus:border-amber-500 py-0.5 text-xs w-full"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Bed Position Controls */}
-              <div className="bg-slate-50 rounded-lg p-3 border border-slate-100">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                   Posición de la cama
                 </span>
                 <div className="flex justify-between gap-2">
@@ -492,10 +493,10 @@ const Modal = ({
                       key={pos}
                       onClick={() => onUpdateBedPosition(pos)}
                       className={`
-                        flex-1 py-1.5 px-2 rounded text-[10px] font-bold uppercase tracking-wider border transition-all
+                        flex-1 py-1.5 px-2 rounded-full text-[10px] font-semibold uppercase tracking-wider border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
                         ${currentBedPosition === pos 
-                          ? 'bg-blue-600 text-white border-blue-600 shadow-sm' 
-                          : 'bg-white text-slate-500 border-slate-200 hover:border-blue-300 hover:bg-blue-50'}
+                          ? 'bg-indigo-600/10 text-indigo-600 border-indigo-600/30' 
+                          : 'bg-white text-slate-600 border-slate-200 hover:text-slate-900 hover:bg-slate-50'}
                       `}
                     >
                       {pos === 'top' ? 'Arriba' : 
@@ -516,27 +517,27 @@ const Modal = ({
                 </div>
               ) : (
                 observations.map((obs) => (
-                  <div key={obs.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm group relative">
+                  <div key={obs.id} className="bg-white p-3 rounded-xl border border-slate-200 shadow-sm group relative">
                     {editingObsId === obs.id ? (
                       <div className="flex gap-2">
                         <input
                           type="text"
                           value={editingText}
                           onChange={(e) => setEditingText(e.target.value)}
-                          className="flex-1 px-2 py-1 text-sm border border-blue-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                          className="flex-1 min-w-0 px-3 py-2 text-sm rounded-xl border border-slate-300 bg-white focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
                           autoFocus
                         />
-                        <button onClick={() => saveEdit(obs.id)} className="text-green-600 hover:bg-green-50 p-1 rounded">
+                        <button onClick={() => saveEdit(obs.id)} className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2.5 py-1 rounded-xl">
                           <span className="text-xs font-bold">OK</span>
                         </button>
-                        <button onClick={cancelEdit} className="text-slate-400 hover:bg-slate-100 p-1 rounded">
+                        <button onClick={cancelEdit} aria-label="Cancelar" className="text-slate-500 hover:bg-slate-100 p-1.5 rounded-xl">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                     ) : (
                       <>
                         <p 
-                          className="text-slate-700 text-sm pr-16 font-medium cursor-pointer hover:text-blue-600 transition-colors"
+                          className="text-slate-700 text-sm pr-16 font-medium cursor-pointer hover:text-indigo-600 transition-colors"
                           onClick={() => startEditing(obs)}
                           title="Click para editar"
                         >
@@ -550,8 +551,9 @@ const Modal = ({
                           {/* Edit Button */}
                           <button
                             onClick={() => startEditing(obs)}
-                            className="p-1.5 text-slate-400 hover:text-blue-500 hover:bg-blue-50 rounded"
+                            className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
                             title="Editar"
+                            aria-label="Editar"
                           >
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
                           </button>
@@ -559,8 +561,9 @@ const Modal = ({
                           {/* Delete Button - Always visible now per request */}
                           <button
                             onClick={() => onDeleteObservation(obs.id)}
-                            className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded"
+                            className="p-1.5 text-slate-400 hover:text-rose-700 hover:bg-rose-50 rounded-lg"
                             title="Eliminar"
+                            aria-label="Eliminar"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -573,7 +576,7 @@ const Modal = ({
             </div>
 
             {/* Input Area with Predictive Text */}
-            <div className="p-4 border-t border-slate-100 bg-white relative">
+            <div className="p-4 border-t border-slate-200 bg-white relative">
               
               {/* Suggestions Popup */}
               <AnimatePresence>
@@ -584,14 +587,14 @@ const Modal = ({
                     exit={{ opacity: 0, y: 10 }}
                     className="absolute bottom-full left-4 right-4 mb-2 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden z-20"
                   >
-                    <div className="bg-slate-50 px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
+                    <div className="bg-slate-50 px-3 py-2 text-[10px] font-semibold text-slate-500 uppercase tracking-wider border-b border-slate-100">
                       Sugerencias
                     </div>
                     {suggestions.map((suggestion, index) => (
                       <button
                         key={index}
                         onClick={() => handleSuggestionClick(suggestion)}
-                        className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-slate-50 last:border-0"
+                        className="w-full text-left px-4 py-3 text-sm text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-colors border-b border-slate-100 last:border-0"
                       >
                         {suggestion}
                       </button>
@@ -601,7 +604,7 @@ const Modal = ({
               </AnimatePresence>
 
               <form onSubmit={handleSubmit}>
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                <label className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-2">
                   Añadir Observación
                 </label>
                 <div className="flex gap-2">
@@ -610,13 +613,13 @@ const Modal = ({
                     value={newObs}
                     onChange={handleInputChange}
                     placeholder="Escriba para buscar problemas..."
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="flex-1 min-w-0 rounded-xl border border-slate-300 bg-white px-3 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-200 outline-none"
                     autoFocus
                   />
                   <button
                     type="submit"
                     disabled={!newObs.trim()}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-bold text-sm"
+                    className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold rounded-xl px-4 py-2.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
                   >
                     Añadir
                   </button>
@@ -628,7 +631,7 @@ const Modal = ({
             <div className="p-4 bg-slate-50 border-t border-slate-200">
               <button
                 onClick={onClose}
-                className="w-full bg-slate-800 text-white py-3 rounded-xl font-bold text-sm uppercase tracking-wider hover:bg-slate-900 transition-colors shadow-lg"
+                className="w-full bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold rounded-xl px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
               >
                 Aceptar y Cerrar
               </button>
@@ -814,26 +817,35 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 md:py-8 md:px-4 flex flex-col items-center">
-      <header className="mb-6 text-center max-w-2xl p-4 md:p-0 w-full">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <div className="inline-flex items-center justify-center p-3 bg-white rounded-xl shadow-sm">
-            <Hotel className="w-6 h-6 text-blue-600 mr-2" />
-            <h1 className="text-xl font-bold text-slate-800">HM Gran Fiesta</h1>
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      <header className="sticky top-0 z-30 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-[#4f46e5] flex items-center justify-center shrink-0 shadow-sm">
+              <Hotel className="w-5 h-5 text-white" />
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-display text-lg font-bold text-slate-900 leading-tight truncate">Plano de Habitaciones</h1>
+              <p className="text-xs text-slate-500 truncate">HM Gran Fiesta</p>
+            </div>
           </div>
-          
+
           <button
             onClick={toggleFullscreen}
-            className="p-3 bg-white rounded-xl shadow-sm text-slate-600 hover:text-blue-600 transition-colors flex items-center justify-center"
+            className="shrink-0 inline-flex items-center gap-2 bg-white border border-slate-300 text-slate-700 hover:bg-slate-50 font-semibold rounded-xl px-2.5 sm:px-4 py-2.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
             title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            aria-label={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
           >
-            {isFullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+            {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+            <span className="hidden sm:inline">{isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}</span>
           </button>
         </div>
-        <p className="text-slate-500 text-sm">
-          Gestor de observaciones de habitaciones. Seleccione una planta y haga clic en una habitación.
-        </p>
       </header>
+
+      <main className="flex-1 w-full flex flex-col items-center md:px-4 pt-5 md:pt-8">
+      <p className="text-slate-600 text-sm text-center max-w-2xl px-4 mb-5">
+        Gestor de observaciones de habitaciones. Seleccione una planta y haga clic en una habitación.
+      </p>
 
       <FloorSelector current={currentFloor} onChange={setCurrentFloor} />
 
@@ -843,19 +855,19 @@ export default function App() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="bg-white md:p-8 p-4 md:rounded-3xl md:shadow-xl md:border border-slate-200 max-w-4xl w-full relative overflow-x-auto overflow-y-hidden flex-1 md:flex-none shadow-none rounded-none border-t border-b"
+        className="bg-white md:p-8 p-4 md:rounded-2xl md:shadow-sm md:border border-slate-200 max-w-4xl w-full relative overflow-x-auto overflow-y-hidden shadow-none rounded-none border-t border-b"
       >
         {/* ... decorative elements ... */}
         
         {/* Decorative Background Elements */}
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-cyan-400" />
+        <div className="absolute top-0 left-0 w-full h-1 bg-[#4f46e5]" />
         
         {/* Main Layout Area - Relative to contain orientation labels */}
         <div className="relative pt-12 pb-16">
           {/* Compass / Orientation Labels */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
             <span>Sea / South</span>
-            <Waves className="w-4 h-4 mt-1 text-blue-300" />
+            <Waves className="w-4 h-4 mt-1 text-indigo-400" />
           </div>
 
           <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest text-slate-400 uppercase flex flex-col items-center">
@@ -934,7 +946,7 @@ export default function App() {
         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-wrap justify-between items-end text-xs text-slate-500">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 bg-amber-50 border border-amber-200 rounded-sm" />
+              <div className="w-3 h-3 bg-amber-50 border border-amber-300 rounded-sm" />
               <span>Con observaciones</span>
             </div>
             <div className="flex items-center gap-2">
@@ -950,20 +962,19 @@ export default function App() {
           </div>
           
           <div className="text-right">
-            <p className="font-bold mb-1">Habs. Minusválidos:</p>
+            <p className="font-semibold text-slate-700 mb-1">Habs. Minusválidos:</p>
             <p>125/126/225</p>
             <p>226/326/426</p>
             <p>526/626/726</p>
             <p>826/926</p>
           </div>
         </div>
-
-        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-          <p className="text-[10px] text-slate-400 font-medium tracking-wide uppercase">
-            © {new Date().getFullYear()} Todos los derechos reservados · Xisco G. H.
-          </p>
-        </div>
       </motion.div>
+      </main>
+
+      <footer className="text-xs text-slate-400 text-center py-6">
+        Plano de Habitaciones · Xisco Solutions
+      </footer>
 
       <Modal 
         isOpen={!!selectedRoom}
